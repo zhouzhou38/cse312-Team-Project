@@ -4,15 +4,17 @@ import hashlib
 import json
 import os
 import socketserver
-
 import sys
 import time
-
 import pymongo
-
 from bson import json_util
+from pymongo import MongoClient
+import toolBox
 
-client = pymongo.MongoClient()
+
+mongo_client = MongoClient('localhost')
+mydb = mongo_client["CSE312db"]
+user_list = mydb["user"]
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -22,7 +24,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
 
         data_arr = data.split(b'/')
-        print(data_arr)
+
         if data_arr[0] == b'GET ' and data_arr[1] == b' HTTP':
         # load home page localhost:5454
             f = open("templates/index.html",'rb')
@@ -42,14 +44,18 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             header += content
             self.request.sendall(header)
 
-        elif data_arr[0] == b'POST ' and data_arr[1] == b'signUp HTTP':
-            print("post")
-            client = pymongo.MongoClient()
-            mydb = client["CSE312db"]
-            user_list = mydb["user"]
+        elif data_arr[0] == b'POST ' and data_arr[1] == b'Signup HTTP':
+            boundary = toolBox.findBoundary(data)
+            print(data)
+            print(boundary)
+            finalBoundary = boundary + b'--'
+            print(finalBoundary)
+            totaldata = data
+            while (totaldata.find(finalBoundary) == -1):
+                totaldata += self.request.recv(1024)
+            userName = toolBox.findUserName(totaldata,boundary)
+            print('userName',userName)
 
-            #t = user_list.find_one({"username": })
-            pass
             '''
             1. verify username is exist on our database
             2. If not exist, load username and password to database.
