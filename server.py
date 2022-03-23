@@ -46,16 +46,17 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         elif data_arr[0] == b'POST ' and data_arr[1] == b'Signup HTTP':
             boundary = toolBox.findBoundary(data)
-            print(data)
-            print(boundary)
             finalBoundary = boundary + b'--'
-            print(finalBoundary)
             totaldata = data
             while (totaldata.find(finalBoundary) == -1):
                 totaldata += self.request.recv(1024)
             userName = toolBox.findUserName(totaldata,boundary)
-            print('userName',userName)
-
+            password = toolBox.findUserPassword(totaldata,boundary)
+            information = toolBox.findUserfromDB(userName)
+            if information is None:
+                toolBox.inserUsertoDB(userName,password)
+            else:
+                self.request.sendall(toolBox.function_404("The UserName Have Already Used, Please Change Your Username and Try Again"))
             '''
             1. verify username is exist on our database
             2. If not exist, load username and password to database.
