@@ -22,7 +22,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
 
         data_arr = data.split(b'/')
-
+        print(data_arr)
         if data_arr[0] == b'GET ' and data_arr[1] == b' HTTP':
         # load home page localhost:5454
             f = open("templates/index.html",'rb')
@@ -42,7 +42,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             header += content
             self.request.sendall(header)
 
-        elif data_arr[0] == b'POST ' and data_arr[1] == b'Signup HTTP':
+        elif data_arr[0] == b'POST ' and data_arr[1] == b'signUp HTTP':
+            print("post")
+            client = pymongo.MongoClient()
+            mydb = client["CSE312db"]
+            user_list = mydb["user"]
+
+            #t = user_list.find_one({"username": })
             pass
             '''
             1. verify username is exist on our database
