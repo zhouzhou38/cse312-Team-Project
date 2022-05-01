@@ -1,4 +1,4 @@
-import hashlib
+import bcrypt
 from pymongo import MongoClient
 
 mongo_client = MongoClient('localhost')
@@ -37,15 +37,13 @@ def findUserPassword(receivedStr,boundary):
     password = password[:lastIndex]
     return password
 
-def hashing_and_salting(password:bytes):
-    return hashlib.sha256(password)
-
 def findUserfromDB(userName):
     userInformation = user_list.find_one({'UserName':userName})
     return userInformation
 
 def inserUsertoDB(userName,password):
-    user_list.insert_one({'UserName':userName,'Password':password})
+    hashedPassword = bcrypt.hashpw(password,bcrypt.gensalt())
+    user_list.insert_one({'UserName':userName,'Password':hashedPassword})
 
 def function_404(information:str):
     myBytes = 'HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-length: {}\r\n\r\n{}'.format(
