@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Project Name</title>
+    <style>
+      div {
+          background-color: #FDF6EC;
+          width: 100%;
+          
+          padding: 50px;
+          margin: 20px;
+      }
+
+      .header a{
+          border: 1px solid;
+          display: inline-block;
+          min-width: 150px;
+          text-align: center;
+          line-height: 50px;
+          font-size: 20px;
+          background-color: #B7CADB;
+          color: black;
+          text-decoration: none;
+          border: 1px solid black;
+          margin: 20px 2px;
+      }
+      #select_color {
+  color: white;
+  background-color: #FDF6EC;
+}
+
+     
+      
+  </style>
+</head>
+
+<body>
+    <h1>Project Name</h1>
+
+    <div class="header">
+        <a href="homepage.html" >Home</a>
+        <a href="about.html" >About</a>
+        <a href="SignUp.html">Register</a>
+        <a href="index.html" class="profile">sign in </a>
+        <a href="/logout">Logout</a>
+    </div>
+    <div class="main">
+        <div class="description">This is change password Page, get back into your account </div>
+        <hr>
+        <div class="login">
+            <form method="post">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" required onkeyup="check_user()"><span id="display_exist"></span><br>
+                <label for="old_password">Old password:</label>
+                <input type="password" name="old_password" id="old_password" required><br>
+                <label for="new_password">New password:</label>
+                <input type="password" name="new_password" id="new_password" required onkeyup="password_validation(); check_password_match()">
+                <span id="valid_pw"></span><br><br>
+                <label for="cnew_password">Confirm your new password:</label>
+                <input type="password" name="cnew_password" id="cnew_password" required onkeyup="check_password_match()">
+                <span id="checkpw"></span><br>
+                <input type="submit" id="submit" value="Next">
+            </form>
+        </div>
+        <p class="casualCase"><a href="index.html">Cancel</a></p>
+    </div>
+</body>
+</html>
