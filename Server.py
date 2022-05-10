@@ -6,9 +6,10 @@ import bcrypt
 from pymongo import MongoClient
 import toolBox
 
-mongo_client = MongoClient('mongo')
+mongo_client = MongoClient('localhost')
 mydb = mongo_client["CSE312db"]
 user_list = mydb["user"]
+moment_info = mydb['moment_info']
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -21,21 +22,27 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         if data_arr[0] == b'GET ' and b' HTTP' == data_arr[1]:
             # load home page localhost:5454
-            f = open("HTMLtemplates/SignIn.html", 'rb')
+            f = open("HTMLtemplates/new_homepage.html", 'rb')
             content = f.read()
-            header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\n"
-            header += str(os.path.getsize("HTMLtemplates/SignIn.html")).encode()
-            header += b'\r\n\r\n'
-            header += content
-            self.request.sendall(header)
+            start_idx = content.find(b'{{start_moment}}')
+            end_idx = content.find(b'{{end_moment}}')
+            print('start_idx :', start_idx)
+            sys.stdout.flush()
+            if moment_info.find({}) is None:
+                print('nothing post here')
+                sys.stdout.flush()
+                empty_moment = b''
+                content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
+
+            self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
 
         elif data_arr[0] == b'GET ' and data_arr[1] == b'Signup HTTP':
-            print('in here')
-            sys.stdout.flush()
+            # print('in here')
+            # sys.stdout.flush()
             f = open("HTMLtemplates/Signup.html", 'rb')
             content = f.read()
-            print(content)
-            sys.stdout.flush()
+            # print(content)
+            # sys.stdout.flush()
             header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\n"
             header += str(os.path.getsize("HTMLtemplates/Signup.html")).encode()
             header += b'\r\n\r\n'
@@ -46,7 +53,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
             totaldata = data
-            while (totaldata.find(finalBoundary) == -1):
+            while totaldata.find(finalBoundary) == -1:
                 totaldata += self.request.recv(1024)
             userName = toolBox.findUserName(totaldata, boundary)
             password = toolBox.findUserPassword(totaldata, boundary)
@@ -104,6 +111,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             load friend_request_box base on username
             return database from username, transfer to html
             '''
+        elif data_arr[0] == b'GET ' and data_arr[1] == b'style.css HTTP':
+            print('starting request css')
+            sys.stdout.flush()
+            self.request.sendall(toolBox.css_sender('style.css'))
+
+        elif data_arr[0] == b'GET ' and b'sakura.jpg HTTP' in data_arr[1]:
+            self.request.sendall(toolBox.image_sender('sakura.jpg'))
 
         elif data_arr[0] == b'GET ' and data_arr[1] == b'direct_message_box HTTP':
             pass
@@ -115,7 +129,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
 if __name__ == '__main__':
     host = '0.0.0.0'
-    port = 8080
+    port = 8081
 
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
     try:
