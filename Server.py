@@ -27,11 +27,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             start_idx = content.find(b'{{start_moment}}')
             end_idx = content.find(b'{{end_moment}}')
             print('start_idx :', start_idx)
+            print(end_idx)
             sys.stdout.flush()
-            if moment_info.find({}) is None:
+            if moment_info.find_one({}) is None:
                 print('nothing post here')
                 sys.stdout.flush()
-                empty_moment = b''
+                empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;\">Make first Post On The Moment!</h1>'
                 content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
 
             self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
@@ -77,7 +78,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
             totaldata = data
-            while (totaldata.find(finalBoundary) == -1):
+            while totaldata.find(finalBoundary) == -1:
                 totaldata += self.request.recv(1024)
             userName = toolBox.findUserName(totaldata, boundary)
             password = toolBox.findUserPassword(totaldata, boundary)
@@ -123,13 +124,16 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             pass
         elif data_arr[0] == b'GET ' and data_arr[1] == b'moment_box HTTP':
             pass
+        elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
+            print(data)
+
         else:
-            self.request.sendall(toolBox.function_404('This does not exist!'))
+            self.request.sendall(toolBox.function_404('This request does not exist!'))
 
 
 if __name__ == '__main__':
     host = '0.0.0.0'
-    port = 8081
+    port = 8085
 
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
     try:

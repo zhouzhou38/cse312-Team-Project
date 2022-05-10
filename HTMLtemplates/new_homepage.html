@@ -241,19 +241,19 @@
             </div>
             <div class="modal-body">
               <form action="/createMoment" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                  <label for="moment_text">Moment Content:</label>
-                  <input type="text" class="form-control" id="moment_text">
-                </div>
+
+                <label for="moment_text">Moment Content:</label>
+                <input type="text" class="form-control" id="moment_text">
+
                 <label for="form-file">Image: </label>
                 <input id="form-file" type="file" name="upload">
-
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success">Post My Moment</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
               </form>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success">Post My Moment</button>
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
+
           </div>
 
         </div>
@@ -264,8 +264,8 @@
     <div class="col-sm-8" style="overflow:scroll; height:400px;">
       <div class="container" >
         <hr>
+        {{start_moment}}
         <div class="row">
-          {{start_moment}}
           <div class="col-sm-12">
             <img src="user_image.jpg" alt="user_image" class="my_image"/> {{post_username}}
           </div>
