@@ -88,7 +88,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
             totaldata = data
-            while (totaldata.find(finalBoundary) == -1):
+            while totaldata.find(finalBoundary) == -1:
                 totaldata += self.request.recv(1024)
             userName = toolBox.findUserName(totaldata, boundary)
             password = toolBox.findUserPassword(totaldata, boundary)
@@ -140,6 +140,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         elif data_arr[0] == b'GET ' and b'sakura.jpg HTTP' in data_arr[1]:
             self.request.sendall(toolBox.image_sender('sakura.jpg'))
 
+        elif data_arr[0] == b'GET ' and b'wallpaper.jpg HTTP' in data_arr[1]:
+            self.request.sendall(toolBox.image_sender('wallpaper.jpg'))
         elif data_arr[0] == b'GET ' and data_arr[1] == b'direct_message_box HTTP':
             pass
         elif data_arr[0] == b'GET ' and data_arr[1] == b'moment_box HTTP':
