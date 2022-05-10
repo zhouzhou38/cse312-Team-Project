@@ -1,6 +1,7 @@
 import bcrypt
 from pymongo import MongoClient
 import os
+import sys
 
 mongo_client = MongoClient('mongo')
 mydb = mongo_client["CSE312db"]
@@ -87,4 +88,17 @@ def general_sender(file_path, content):
 
 
 def parse_to_dict(header_bytes):
-    return 0
+
+    headers = header_bytes.decode('UTF-8')
+    headersLst = headers.split('\r\n')
+    headersLst.pop(0)
+    # convert list to a dictionary
+    res_dict = {}
+    for s in headersLst:
+        mid_idx = s.find(':')
+        key = (str(s)[:mid_idx])
+        val = (str(s)[mid_idx:])
+        val = val.replace(': ', '')
+        res_dict[key] = val
+
+    return res_dict

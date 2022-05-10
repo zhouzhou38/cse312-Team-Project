@@ -6,7 +6,7 @@ import bcrypt
 from pymongo import MongoClient
 import toolBox
 
-mongo_client = MongoClient('localhost')
+mongo_client = MongoClient('mongo')
 mydb = mongo_client["CSE312db"]
 user_list = mydb["user"]
 moment_info = mydb['moment_info']
@@ -111,7 +111,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         sys.stdout.flush()
                         empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;\">Make first Post On The Moment!</h1>'
                         content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
-                    self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
+                    # self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
+                    header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nContent-length:'
+                    header += str(len(content)).encode()
+                    header += b'\r\n\r\n'
+                    header += content
+                    self.request.sendall(header)
                 else:
                     header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/?error=password\r\n\r\n"
                     self.request.sendall(header)
@@ -140,18 +145,27 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         elif data_arr[0] == b'GET ' and data_arr[1] == b'moment_box HTTP':
             pass
         elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
-            print(data)
             b_bankline = b'\r\n\r\n'
             header_bytes = data.split(b_bankline)[0]
             print(header_bytes)
-            toolBox.parse_to_dict(header_bytes)
+            sys.stdout.flush()
+            res_dict = toolBox.parse_to_dict(header_bytes)
+            contentLen = int(res_dict['Content-Length'])
+            contentLen = contentLen + len(header_bytes) - len(data)
+            while contentLen > 0:
+                new_recv = self.request.recv(1024)
+                data += new_recv
+                contentLen -= len(new_recv)
+            print('whole data_recv :', data)
+            sys.stdout.flush()
+
         else:
             self.request.sendall(toolBox.function_404('This does not exist!'))
 
 
 if __name__ == '__main__':
     host = '0.0.0.0'
-    port = 8082
+    port = 8080
 
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
     try:
