@@ -22,20 +22,26 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         if data_arr[0] == b'GET ' and b' HTTP' == data_arr[1]:
             # load home page localhost:5454
-            f = open("HTMLtemplates/new_homepage.html", 'rb')
-            content = f.read()
-            start_idx = content.find(b'{{start_moment}}')
-            end_idx = content.find(b'{{end_moment}}')
-            print('start_idx :', start_idx)
-            print(end_idx)
-            sys.stdout.flush()
-            if moment_info.find_one({}) is None:
-                print('nothing post here')
-                sys.stdout.flush()
-                empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;\">Make first Post On The Moment!</h1>'
-                content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
+            # f = open("HTMLtemplates/new_homepage.html", 'rb')
+            # content = f.read()
+            # start_idx = content.find(b'{{start_moment}}')
+            # end_idx = content.find(b'{{end_moment}}')
+            # print('start_idx :', start_idx)
+            # sys.stdout.flush()
+            # if moment_info.find({}) is None:
+            #     print('nothing post here')
+            #     sys.stdout.flush()
+            #     empty_moment = b''
+            #     content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
 
-            self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
+
+            f = open("HTMLtemplates/SignIn.html",'rb')
+            content = f.read()
+            header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nContent-length:"
+            header += str(os.path.getsize("HTMLtemplates/SignIn.html")).encode()
+            header += b'\r\n\r\n'
+            header += content
+            self.request.sendall(header)
 
         elif data_arr[0] == b'GET ' and data_arr[1] == b'Signup HTTP':
             # print('in here')
@@ -51,6 +57,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(header)
 
         elif data_arr[0] == b'POST ' and b'Signup' in data_arr[1]:
+            print('post Signup')
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
             totaldata = data
@@ -59,9 +66,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             userName = toolBox.findUserName(totaldata, boundary)
             password = toolBox.findUserPassword(totaldata, boundary)
             information = toolBox.findUserfromDB(userName)
-
+            print(userName)
+            print(password)
             if information is None:
                 toolBox.inserUsertoDB(userName, password)
+                print('hello')
                 header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/\r\n\r\n"
                 self.request.sendall(header)
             else:
@@ -75,10 +84,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             '''
 
         elif data_arr[0] == b'POST ' and b'profile' in data_arr[1]:
+
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
             totaldata = data
-            while totaldata.find(finalBoundary) == -1:
+            while (totaldata.find(finalBoundary) == -1):
                 totaldata += self.request.recv(1024)
             userName = toolBox.findUserName(totaldata, boundary)
             password = toolBox.findUserPassword(totaldata, boundary)
@@ -92,16 +102,21 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     user_list.update_one({"UserName": userName}, {'$set': {'cookie': tokenhashed}})
                     f = open("HTMLtemplates/new_homepage.html", 'rb')
                     content = f.read()
-                    header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nContent-length:'
-                    header += str(os.path.getsize("HTMLtemplates/new_homepage.html")).encode()
-                    header += b'\r\n\r\n'
-                    header += content
-                    self.request.sendall(header)
+                    start_idx = content.find(b'{{start_moment}}')
+                    end_idx = content.find(b'{{end_moment}}')
+                    print('start_idx :', start_idx)
+                    sys.stdout.flush()
+                    if moment_info.find_one({}) is None:
+                        print('nothing post here')
+                        sys.stdout.flush()
+                        empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;\">Make first Post On The Moment!</h1>'
+                        content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
+                    self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
                 else:
-                    header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:5454/?error=password\r\n\r\n"
+                    header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/?error=password\r\n\r\n"
                     self.request.sendall(header)
             else:
-                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:5454/?error=username\r\n\r\n"
+                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/?error=username\r\n\r\n"
                 self.request.sendall(header)
 
         elif data_arr[0] == b'GET ' and data_arr[2] == b'friend_request_box HTTP':
@@ -125,15 +140,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         elif data_arr[0] == b'GET ' and data_arr[1] == b'moment_box HTTP':
             pass
         elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
-            print(data)
 
         else:
-            self.request.sendall(toolBox.function_404('This request does not exist!'))
+            self.request.sendall(toolBox.function_404('This does not exist!'))
 
 
 if __name__ == '__main__':
     host = '0.0.0.0'
-    port = 8085
+    port = 8080
 
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
     try:
