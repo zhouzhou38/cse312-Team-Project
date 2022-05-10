@@ -10,6 +10,7 @@ mongo_client = MongoClient('mongo')
 mydb = mongo_client["CSE312db"]
 user_list = mydb["user"]
 moment_info = mydb['moment_info']
+logged= mydb["logged"]
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -82,6 +83,49 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                Redirect to home page
                Else exist, send an error 
             '''
+
+        elif data_arr[0] == b'POST ' and b'User' in data_arr[1]:
+            print('post signin')
+            boundary = toolBox.findBoundary(data)
+            finalBoundary = boundary + b'--'
+            totaldata = data
+            while totaldata.find(finalBoundary) == -1:
+                totaldata += self.request.recv(1024)
+            userName = toolBox.findUserName(totaldata, boundary)
+            password = toolBox.findUserPassword(totaldata, boundary)
+            information = toolBox.findUserfromDB(userName)
+            print(userName)
+            print(password)
+            if information is not None:
+                print("good login")
+                if password == information['Password']:
+                    # localhost:5454/?name=username
+                    print("password correct")
+                    mytoken = secrets.token_hex(16).encode()
+                    tokenhashed = bcrypt.hashpw(mytoken, bcrypt.gensalt())
+                    res = logged.find_one({'username': username})
+                    if res is None:
+                        logged.insert_one({'username': username,'token':tokenhashed})
+                    else:  
+                        logged.update({'username':username},{'username':username,'token':tokenhashed})
+
+                    f = open("HTMLtemplates/new_homepage.html", 'rb')
+                    content = f.read()
+                    header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nContent-length:'
+                    header += str(os.path.getsize("HTMLtemplates/new_homepage.html")).encode()
+                    header += b'\r\n\r\n'
+                    header += content
+                    self.request.sendall(header)
+                    
+                else:
+                    print("password uncorrect")
+                    header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/Signup/?error=username\r\n\r\n"
+                    self.request.sendall(header)    
+
+            else:
+                print("need login")
+                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/Signup/?error=username\r\n\r\n"
+                self.request.sendall(header)    
 
         elif data_arr[0] == b'POST ' and b'profile' in data_arr[1]:
 
