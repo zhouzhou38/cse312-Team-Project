@@ -140,14 +140,18 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         elif data_arr[0] == b'GET ' and data_arr[1] == b'moment_box HTTP':
             pass
         elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
-
+            print(data)
+            b_bankline = b'\r\n\r\n'
+            header_bytes = data.split(b_bankline)[0]
+            print(header_bytes)
+            toolBox.parse_to_dict(header_bytes)
         else:
             self.request.sendall(toolBox.function_404('This does not exist!'))
 
 
 if __name__ == '__main__':
     host = '0.0.0.0'
-    port = 8080
+    port = 8082
 
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
     try:

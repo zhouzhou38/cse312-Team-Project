@@ -84,3 +84,7 @@ def general_sender(file_path, content):
     header += b'\r\n\r\n'
     header += content
     return header
+
+
+def parse_to_dict(header_bytes):
+    return 0
