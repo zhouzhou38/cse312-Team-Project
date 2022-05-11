@@ -8,8 +8,10 @@ import toolBox
 
 mongo_client = MongoClient('mongo')
 mydb = mongo_client["CSE312db"]
+
 user_list = mydb["user"]
 moment_info = mydb['moment_info']
+chat_history = mydb['chat_history']
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -111,7 +113,30 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         sys.stdout.flush()
                         empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;\">Make first Post On The Moment!</h1>'
                         content = content[:start_idx] + empty_moment + content[end_idx + len(b'{{end_moment}}'):]
+
+                    # load profile  -> zhou
+
+
+                    # load moment  -> zeng
+
+
+                    # load friend list -> wang
+                    friend_list_temp = ""
+                    friend_list_starting_pos = content.find('<p hidden>friend list class start pos</p>')+len('<p hidden>friend list class start pos</p>')
+                    friend_list_ending_pos = content.find('<p hidden>friend list class end pos</p>')
+                    #<button id="friend1" onclick="document.getElementById('chat01').style.display='block';pass_friend1_name()" style="width:auto;" class="button">Friend1</button><br>
+                    i = 0
+
+                    for user in user_list.find():
+                        friend_list_temp += "<button id=\"friend"+str(i)+"\" onclick=\"document.getElementById('chat"+str(i)+"').style.display='block';pass_friend"+str(i)+"_name()\" style=\"width:auto;\" class=\"button\">"+user["username"]+"</button><br>\n"
+                    content = content.replace(content[friend_list_starting_pos:friend_list_ending_pos])
+
+
+
+
+
                     # self.request.sendall(toolBox.general_sender("HTMLtemplates/new_homepage.html", content))
+
                     header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nContent-length:'
                     header += str(len(content)).encode()
                     header += b'\r\n\r\n'

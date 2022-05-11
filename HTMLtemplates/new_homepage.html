@@ -11,7 +11,7 @@
   <link rel="stylesheet" type="text/css" href="../style.css"/>
   <style>
   .jumbotron{
-            background-image: url("sakura.jpg");
+            background-image: url("../sakura.jpg");
             background-position: center;
             background-repeat: no-repeat;
             position: relative;
@@ -19,7 +19,7 @@
 
         }
   .header-image{
-            background-image: url("cat.jpg");
+            background-image: url("../cat.jpg");
             background-position: center;
             background-repeat: no-repeat;
             position: relative;
@@ -292,10 +292,10 @@
           <br>
 
           <input type="text" id="sendTo" name="sendTo" value="sendTo_name" style="" hidden>
-          {{friend list starting loop}}
+          <p hidden>friend list class start pos</p>
           <button id="friend1" onclick="document.getElementById('chat01').style.display='block';pass_friend1_name()" style="width:auto;" class="button">Friend1</button><br>
           <button id="friend2" onclick="document.getElementById('chat02').style.display='block';pass_friend2_name" style="width:auto;" class="button">Friend2</button><br>
-          {{friend list ending loop}}
+          <p hidden>friend list class end pos</p>
 
           <div id="chat01" class="modal">
             <form action="/user" method="post" enctype="multipart/form-data" class="modal-content animate">
@@ -308,7 +308,7 @@
                   {{chat01 history starting loop}}
                   <p dir="ltr">user1-> hi</p >
                   <p dir="rtl">hello <-me</p >
-                  {{chat01 history ending loop}}
+                  <p hidden>chat history starting loop</p>
                 </div>
 
                 <div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">
