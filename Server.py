@@ -151,6 +151,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         elif data_arr[0] == b'GET ' and data_arr[2] == b'friend_request_box HTTP':
             # localhost:5454/kylin/friend_request_box
+
             # localhost:5454/zhou/friend_request_box
             username = data_arr[1].split(b' ')[0]
             '''
