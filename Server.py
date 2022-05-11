@@ -147,8 +147,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         elif data_arr[0] == b'GET ' and data_arr[1] == b'moment_box HTTP':
             pass
         elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
-            b_bankline = b'\r\n\r\n'
-            header_bytes = data.split(b_bankline)[0]
+            b_blankLine = b'\r\n\r\n'
+            header_bytes = data.split(b_blankLine)[0]
             print(header_bytes)
             sys.stdout.flush()
             res_dict = toolBox.parse_to_dict(header_bytes)
@@ -158,9 +158,43 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 new_recv = self.request.recv(1024)
                 data += new_recv
                 contentLen -= len(new_recv)
-            print('whole data_recv :', data)
-            sys.stdout.flush()
+            # print('whole data_recv :', data)
+            # sys.stdout.flush()
 
+            ContentOfBoundary = res_dict['Content-Type'].replace('multipart/form-data; boundary=', '')
+            realContent = '--' + ContentOfBoundary + '\r\n'
+            b_realContent = realContent.encode()
+            b_requestLst = data.split(b_realContent)
+
+            # delete header here
+            b_requestLst.pop(0)
+
+            print('content here :', b_requestLst)
+            sys.stdout.flush()
+            content_dict = {}
+            # verify user's identity throught the cookie token
+            for b_request in b_requestLst:
+                # parse the comment,and get the content of the comment
+                if b_requestLst.index(b_request) == 1:
+                    split_index = b_request.find(b_blankLine)
+                    subHeaders = 'comment'
+                    subBody = b_request[split_index + 4:len(b_request)]
+                    # replace the character here !!!! ,prevent http injection
+                    subBody = subBody.replace(b'&', b'&amp')
+                    subBody = subBody.replace(b'<', b'&lt')
+                    subBody = subBody.replace(b'>', b'&gt')
+                    subBody = subBody.replace(b'\r\n', b'<br>')
+                else:
+                    end_index = b_request.find(b'\r\n------')
+                    split_index = b_request.find(b_blankLine)
+                    subHeaders = 'upload'
+                    subBody = b_request[split_index + 4:end_index]
+
+                content_dict[subHeaders] = subBody
+                # content_dict['username'] = visitorName
+            print('moment_info :', content_dict)
+            sys.stdout.flush()
+            moment_info.insert_one(content_dict)
         else:
             self.request.sendall(toolBox.function_404('This does not exist!'))
 

@@ -88,10 +88,10 @@
 
         /* Modal Content/Box */
         .modal-content {
-            background-color: #fefefe;
+            background-color:  #FEFAD7;
             margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
             border: 1px solid #888;
-            width: 90%; /* Could be more or less, depending on screen size */
+            width: 80%; /* Could be more or less, depending on screen size */
         }
 
         /* The Close Button (x) */
@@ -226,7 +226,7 @@
         </div>
         <div class="text-right">
         <h3>{{username}}</h3>
-        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">make a moment</button>
+        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal" style="background-color: #F1D5EF">make a moment</button>
         </div>
       <!-- Modal -->
       <div class="modal fade" id="myModal" role="dialog">
@@ -241,13 +241,14 @@
             <div class="modal-body">
               <form action="/createMoment" method="post" enctype="multipart/form-data">
 
-                <label for="moment_text">Moment Content:</label>
-                <input type="text" class="form-control" id="moment_text">
-
+<!--                <input value="welcomeToThisPageToken" name="xsrf_token" hidden>-->
+                <label for="image-form-comment">text_here: </label>
+                <textarea id="image-form-comment" name="text_post" cols="40" rows="6"></textarea>
+                <br/>
                 <label for="form-file">Image: </label>
-                <input id="form-file" type="file" name="upload">
+                <input id="form-file" type="file" name="upload" style="color: #F1D5EF">
                 <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">Post My Moment</button>
+                  <button type="submit" class="btn btn-success" style="background-color: #F1D5EF">Post My Moment</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
               </form>
