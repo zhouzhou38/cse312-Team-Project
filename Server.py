@@ -56,8 +56,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             print(userName)
             print(password)
             if information is None:
+                f = open('wallpaper.jpg', 'rb')
+                content = f.read()
                 toolBox.inserUsertoDB(userName, password)
-                print('hello')
+                user_list.update_one({'UserName': userName}, {'$set': {'head_image': content}})
+
+                print('user_info :', list(user_list.find({})))
+                sys.stdout.flush()
                 header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/\r\n\r\n"
                 self.request.sendall(header)
             else:
@@ -130,8 +135,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
                     "nosniff\r\nLocation:HTTP://localhost:8080/\r\n\r\n".encode())
             else:
-                print('hey')
-                sys.stdout.flush()
                 with open('HTMLtemplates/new_homepage.html', 'r') as f:
                     text = f.read()
                     del_idx_1 = text.find('{{start_moment}}')
@@ -185,15 +188,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 # print('noway')
                                 # sys.stdout.flush()
                                 moment_template = moment_template.replace('{{post_username}}', i['username'])
-                                moment_template = moment_template.replace('{{content_begin_here}}',
-                                                                          i['comment'].decode('UTF-8'))
+
                                 image_id = i['id']
                                 str_image_id = str(image_id)
                                 revised = "\"" + "image/upload_image{{id}}.jpg" + "\""
                                 revised = revised.replace('{{id}}', str_image_id)
                                 sampleLink = "<img src= " + revised + " class=" + "\"" + "my_image" + "\"" + "/>"
-                                moment_template += "<br>"
-                                moment_template += sampleLink
+                                combo_content = i['comment'].decode('UTF-8') + '<br>' + sampleLink
+                                moment_template = moment_template.replace('{{content_begin_here}}', combo_content)
                                 moment_template += '<hr>'
                                 # print('path is ', sampleLink)
                                 # sys.stdout.flush()
