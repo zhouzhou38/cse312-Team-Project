@@ -168,14 +168,17 @@
 
 <nav class="navbar">
   <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#" >UBChatting</a>
-    </div>
-    <ul class="nav navbar-nav">
+    <ul class="nav navbar-nav" style="width: 100%">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" >UBChatting</a>
+      </div>
       <li class="active" ><a href="#">Home</a></li>
       <li><a href="#">Chat</a ></li>
-      <li><a href="#"> profile</a></li>
+      <li><a href="#">profile</a></li>
       <!--            <li><a href="#">Page 3</a></li>-->
+      <li style = "float: right">
+        <a href ='/logout'>log out </a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -262,7 +265,7 @@
       </div>
     </div>
   <!--  zeng-->
-    <div class="col-sm-8" style="overflow:scroll; height:400px;">
+    <div class="col-sm-8" style="overflow:scroll; height:700px;">
       <div class="container" >
         <hr>
         {{start_moment}}

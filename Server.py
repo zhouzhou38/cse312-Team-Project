@@ -256,7 +256,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             head_image = b''
             if visitorName is not None:
                 identity_checker = True
-                print(list(user_list.find({})))
+                # print(list(user_list.find({})))
                 sys.stdout.flush()
                 user_info = user_list.find_one({'UserName': visitorName.encode()})
                 # print('user_info:', user_info)
@@ -399,6 +399,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(('HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: ' + str(
                     l_image) + '\r\nX-Content-Type-Options: nosniff' + "\r\n\r\n").encode() + image)
 
+        elif data_arr[1] == b'logout HTTP':
+            self.request.sendall(
+                "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
+                "nosniff\r\nLocation:http://localhost:8080/\r\n\r\n".encode())
 
         else:
             self.request.sendall(toolBox.function_404('This does not exist!'))
