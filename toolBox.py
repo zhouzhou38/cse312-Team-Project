@@ -111,11 +111,11 @@ def find_userName(res_dict):
         i = i.strip()
         a = i.split('=')
         cookieDic[a[0]] = a[1]
-    print("cookieDic :", cookieDic)
-    sys.stdout.flush()
+    # print("cookieDic :", cookieDic)
+    # sys.stdout.flush()
     for i in list(user_list.find({})):
-        print('i:', i)
-        sys.stdout.flush()
+        # print('i:', i)
+        # sys.stdout.flush()
         if 'cookie' in i and 'token' in cookieDic:
             if bcrypt.checkpw(cookieDic['token'].encode(), i['cookie']):
                 print('checking identity correctly')
