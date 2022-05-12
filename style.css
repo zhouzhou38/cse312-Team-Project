@@ -55,11 +55,17 @@
             height: 100px;
             border: 7px solid #F1D5EF;
         }
-        .my_image {
+        .moment_image {
             width: 60px;
             height : 60px;
             border: 5px solid #F1D5EF;
         }
+        .my_image{
+            width: 120px;
+            height: 120px;
+
+        }
+
 
         #col-sm-4{
           border: 5px solid #F1D5EF;

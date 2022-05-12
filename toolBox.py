@@ -88,7 +88,6 @@ def general_sender(file_path, content):
 
 
 def parse_to_dict(header_bytes):
-
     headers = header_bytes.decode('UTF-8')
     headersLst = headers.split('\r\n')
     headersLst.pop(0)
@@ -102,3 +101,34 @@ def parse_to_dict(header_bytes):
         res_dict[key] = val
 
     return res_dict
+
+
+def find_userName(res_dict):
+    cookieDic = {}
+    visitorName = ''
+    CookieLst = (res_dict['Cookie']).split(';')
+    for i in CookieLst:
+        i = i.strip()
+        a = i.split('=')
+        cookieDic[a[0]] = a[1]
+    print("cookieDic :", cookieDic)
+    sys.stdout.flush()
+    for i in list(user_list.find({})):
+        print('i:', i)
+        sys.stdout.flush()
+        if 'cookie' in i and 'token' in cookieDic:
+            if bcrypt.checkpw(cookieDic['token'].encode(), i['cookie']):
+                print('checking identity correctly')
+                sys.stdout.flush()
+                visitorName = i['UserName'].decode()
+                print('visitorName :', visitorName)
+                sys.stdout.flush()
+                visitorName = visitorName.replace('&', '&amp')
+                visitorName = visitorName.replace('<', '&lt')
+                visitorName = visitorName.replace('>', '&gt')
+                visitorName = visitorName.replace('\r\n', '<br>')
+                return visitorName
+        else:
+            return None
+
+
