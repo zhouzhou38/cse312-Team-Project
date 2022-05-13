@@ -158,7 +158,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             chat_box_temp += '<textarea id="friendName_'+friend_name+'" name="message" required style="position: relative;margin-left: 0;display: inline-block;">\n'
                             chat_box_temp += 'Sending text...\n'
                             chat_box_temp += '</textarea>\n'
-                            chat_box_temp += '<button onclick="sendMessage()">Send msg</button>'
+                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="sendMessage()">Send msg</button>'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '<br>\n'
                             chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat_'+friend_name+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
@@ -186,7 +186,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     del_idx_1 = text.find('{{start_moment}}')
                     del_idx_2 = text.find('{{end_moment}}')
 
-                    empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;\">Make first Post On The Moment!</h1>'
+                    empty_moment = b'<h1 style=\"text-align:center; color:#F1D5EF;font-style:oblique;\">Make first Post On The Moment!</h1>'
 
                     if moment_info.find_one({}) is None:
                         new_content = text[:del_idx_1] + empty_moment.decode('utf-8') + text[del_idx_2 + len('{{end_moment}}'):]
@@ -369,6 +369,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             # send online user to client -------------------------------------------------------------------
             online_user = list(MyTCPHandler.ws_users.keys())
+            print("online_user now: ",online_user)
             online_user_msg = json.dumps({"messageType":"online-user","userList":online_user}).encode()
             online_user_msg_bin = ""
             for b in online_user_msg:
@@ -543,7 +544,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
                     elif payload_bin.find(break_bin) == 0:
                         MyTCPHandler.ws_users.pop(username)
-
                         online_user_msg = json.dumps({"messageType":"user_disconnecting","user":username}).encode()
                         online_user_msg_bin = ""
                         for b in online_user_msg:
@@ -564,7 +564,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             token = data[token_start_pos:token_end_pos]
             username = b""
             for document in user_list.find():
-                if bcrypt.checkpw(token,document['cookie']):
+                if "cookie" in document and bcrypt.checkpw(token,document['cookie']):
                     username = document['UserName']
 
             if username == b"":
