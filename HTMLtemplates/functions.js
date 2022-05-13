@@ -171,7 +171,9 @@ socket.onmessage = function (ws_message) {
             webRTCConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
             webRTCConnection.createAnswer().then(answer => {
                 webRTCConnection.setLocalDescription(answer);
-                socket.send(JSON.stringify({'messageType': 'webRTC-answer', 'answer': answer}));
+                // const sender = document.getElementById("me").value
+                // const receiver = document.getElementById("sendTo").value
+                 socket.send(JSON.stringify({'messageType': 'webRTC-answer', 'answer': answer}));
             });
             break;
         case 'webRTC-answer':

@@ -27,8 +27,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         data_arr = data.split(b'/')
         print(data_arr)
         sys.stdout.flush()
-
-        if data_arr[0] == b'GET ' and (b' HTTP' == data_arr[1] or b'?error=username HTTP' == data_arr[1] or b'?error=password HTTP' == data_arr[1]):
+        if data_arr[0] == b"":
+            pass
+        elif data_arr[0] == b'GET ' and (b' HTTP' == data_arr[1] or b'?error=username HTTP' == data_arr[1] or b'?error=password HTTP' == data_arr[1]):
             f = open("HTMLtemplates/SignIn.html",'rb')
             content = f.read()
             header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nContent-length:"
@@ -158,7 +159,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             chat_box_temp += '<textarea id="friendName_'+friend_name+'" name="message" required style="position: relative;margin-left: 0;display: inline-block;">\n'
                             chat_box_temp += 'Sending text...\n'
                             chat_box_temp += '</textarea>\n'
-                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="sendMessage()">Send msg</button>'
+                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="sendMessage()">Send msg</button>\n'
+                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="startVideo()">start video</button>\n'
+                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="connectWebRTC();">video chat</button>\n'
+                            chat_box_temp += '<video id="myVideo" autoplay muted></video>\n'
+                            chat_box_temp += '<br>\n'
+                            chat_box_temp += '<video id="otherVideo" autoplay></video>\n'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '<br>\n'
                             chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat_'+friend_name+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
@@ -292,6 +298,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             dataToSend = header.encode()
             self.request.sendall(dataToSend)
         elif data_arr[0] == b'GET ' and b'sakura.jpg HTTP' in data_arr[1]:
+
+
+            print()
             self.request.sendall(toolBox.image_sender('sakura.jpg'))
         elif data_arr[0] == b'GET ' and b'user_head.jpg' in data_arr[1]:
             # headerLst = data.split(b"\r\n")
@@ -332,6 +341,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nX-Content-Type-Options: nosniff\r\nLocation: http://localhost:8080/profile\r\n\r\n"
                 self.request.sendall(header)
         elif data_arr[0] == b'GET ' and b'wallpaper.jpg HTTP' in data_arr[1]:
+            print()
+            print()
+
             self.request.sendall(toolBox.image_sender('wallpaper.jpg'))
         elif data_arr[0] == b'GET ' and data_arr[1] == b'websocket HTTP':
             token_start_pos = data.find(b"token=")+len(b"token=")
@@ -424,7 +436,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         actual_len = payload_len
                         start_pos = 48
                     recv_bin = ""
-
                     for b in recv_bytes:
                         recv_bin += '{0:08b}'.format(b)
                     mask = recv_bin[start_pos-32:start_pos]
