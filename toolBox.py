@@ -1,22 +1,11 @@
 import bcrypt
 from pymongo import MongoClient
 import os
-import sys
 
-mongo_client = MongoClient()
+mongo_client = MongoClient('localhost')
 mydb = mongo_client["CSE312db"]
 user_list = mydb["user"]
 
-
-def findImage(receivedStr, boundary,finalBoundary):
-    boundaryIn = receivedStr.find(boundary)
-    userName = receivedStr[boundaryIn + len(boundary):]
-    rnindex = userName.find(b'\r\n\r\n')
-    userName = userName[rnindex + len(b'\r\n\r\n'):]
-    rnfinalIndex = userName.find(finalBoundary)
-    # obtain UserName
-    image = userName[:rnfinalIndex-2]
-    return image
 
 def findBoundary(receivedStr):
     boundary = receivedStr
@@ -95,50 +84,3 @@ def general_sender(file_path, content):
     header += b'\r\n\r\n'
     header += content
     return header
-
-
-def parse_to_dict(header_bytes):
-    headers = header_bytes.decode('UTF-8')
-    headersLst = headers.split('\r\n')
-    headersLst.pop(0)
-    # convert list to a dictionary
-    res_dict = {}
-    for s in headersLst:
-        mid_idx = s.find(':')
-        key = (str(s)[:mid_idx])
-        val = (str(s)[mid_idx:])
-        val = val.replace(': ', '')
-        res_dict[key] = val
-
-    return res_dict
-
-
-def find_userName(res_dict):
-    cookieDic = {}
-    visitorName = ''
-    print("res: ",res_dict)
-    CookieLst = (res_dict['Cookie']).split(';')
-    for i in CookieLst:
-        i = i.strip()
-        a = i.split('=')
-        cookieDic[a[0]] = a[1]
-    # print("cookieDic :", cookieDic)
-    # sys.stdout.flush()
-    for i in list(user_list.find({})):
-        # print('i:', i)
-        # sys.stdout.flush()
-        if 'cookie' in i and 'token' in cookieDic:
-            if bcrypt.checkpw(cookieDic['token'].encode(), i['cookie']):
-
-                sys.stdout.flush()
-                visitorName = i['UserName'].decode()
-
-                sys.stdout.flush()
-                visitorName = visitorName.replace('&', '&amp')
-                visitorName = visitorName.replace('<', '&lt')
-                visitorName = visitorName.replace('>', '&gt')
-                visitorName = visitorName.replace('\r\n', '<br>')
-                return visitorName
-        else:
-            return None
-
