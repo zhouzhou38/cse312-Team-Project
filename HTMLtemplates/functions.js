@@ -50,12 +50,14 @@ function displayChatHistory(all_chats) {
         }
 
 
-        let foo = document.getElementById("chat"+friendName)
+        let foo = document.getElementById("chatBox_"+friendName)
         if (foo != null){
-            document.getElementById("chat"+friendName).innerHTML = chat_temp;
+            document.getElementById("chatBox_"+friendName).innerHTML = chat_temp;
         }
 
     }
+
+
 
 }
 
@@ -89,9 +91,9 @@ function addMessage(msg){
     let m = msg['msg']
 
     if (sender===me){
-        document.getElementById("chat"+receiver).innerHTML += "\n<p style=\"text-align: right\">"+m+"</p>\n"
+        document.getElementById("chatBox_"+receiver).innerHTML += "\n<p style=\"text-align: right\">"+m+"</p>\n"
     }else{
-        document.getElementById("chat"+sender).innerHTML += "\n<p style=\"text-align: left\">"+m+"</p>\n"
+        document.getElementById("chatBox_"+sender).innerHTML += "\n<p style=\"text-align: left\">"+m+"</p>\n"
     }
 
 
@@ -117,6 +119,54 @@ socket.onmessage = function (ws_message) {
             }
             addMessage(message);
             break;
+        case 'online-user':
+            const me = document.getElementById('me').value
+            const list = message.userList
+            for(let i=0;i<list.length;i++){
+                let friendname = list[i]
+                console.log("input: ",friendname, me, document.getElementById("friend_"+friendname))
+                if(friendname !== me && document.getElementById("friend_"+friendname)==null){
+                    console.log("adding friendname: ",friendname)
+                    let temp = "<button id=\"friend_"+friendname+"\" onclick=\'document.getElementById(\"chat_"
+                    temp += friendname+"\").style.display=\"block\";pass_friend_"
+                    temp += friendname+"();cleanBadge()\' style=\"width: max-content;\" class=\"button\" value=\""
+                    temp += friendname+"\">"
+                    temp += friendname+" <span id=\"badge_"
+                    temp += friendname+"\" class=\"badge\">"
+                    temp += "<\/span><\/button><br>"
+
+                    let chat_box_temp = temp
+                    chat_box_temp += '<div id="chat_'+friendname+'" class="modal" style="overflow:scroll" >\n'
+                    chat_box_temp += '<div class="imgcontainer" style="background:#F1D5EF" >\n'
+                    chat_box_temp += friendname+'\n'
+                    chat_box_temp += '</div>\n'
+                    chat_box_temp += '<div class="container" >\n'
+                    chat_box_temp += '<div id="chatBox_'+friendname+'" class="chatBox" >\n'
+                    chat_box_temp += '</div>\n\n'
+                    chat_box_temp += '<div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">\n'
+                    chat_box_temp += '<textarea id="friendName_'+friendname+'" name="message" required style="position: relative;margin-left: 0;display: inline-block;">\n'
+                    chat_box_temp += 'Sending text...\n'
+                    chat_box_temp += '</textarea>\n'
+                    chat_box_temp += '<button onclick="sendMessage()">Send msg</button>'
+                    chat_box_temp += '</div>\n'
+                    chat_box_temp += '<br>\n'
+                    chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat_'+friendname+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
+                    chat_box_temp += '</div>\n'
+                    chat_box_temp += '</div>\n\n'
+                    console.log(temp)
+                    document.getElementById("id_"+me).innerHTML += temp
+                }
+            }
+            console.log("compare: ",document.getElementById('me').value,message.userList)
+
+            break;
+        case "user_disconnecting":
+
+            const disconnecting_user = message.user
+            console.log(disconnecting_user, "is removing")
+            document.getElementById("friend_"+disconnecting_user).remove()
+            break;
+
         case 'webRTC-offer':
             webRTCConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
             webRTCConnection.createAnswer().then(answer => {

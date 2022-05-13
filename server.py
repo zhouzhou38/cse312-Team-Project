@@ -28,7 +28,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print(data_arr)
         sys.stdout.flush()
 
-        if data_arr[0] == b'GET ' and b' HTTP' == data_arr[1]:
+        if data_arr[0] == b'GET ' and (b' HTTP' == data_arr[1] or b'?error=username HTTP' == data_arr[1] or b'?error=password HTTP' == data_arr[1]):
             f = open("HTMLtemplates/SignIn.html",'rb')
             content = f.read()
             header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\nContent-length:"
@@ -36,7 +36,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             header += b'\r\n\r\n'
             header += content
             self.request.sendall(header)
-        elif data_arr[0] == b'GET ' and data_arr[1] == b'Signup HTTP':
+        elif data_arr[0] == b'GET ' and (data_arr[1] == b'Signup HTTP' or data_arr[2] == b'?error=username HTTP'):
             # print('in here')
             # sys.stdout.flush()
             f = open("HTMLtemplates/Signup.html", 'rb')
@@ -128,44 +128,45 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     # load friend list -> wang ------------------------------------------
 
                     content = text.encode()
-                    friend_list_temp = ""
+
                     friend_list_starting_pos = content.find(b'<p hidden>friend list class start loop</p>')+len('<p hidden>friend list class start loop</p>')
                     friend_list_ending_pos = content.find(b'<p hidden>friend list class end loop</p>')
 
                     friend_list_js_temp = "<script>\n"
                     chat_box_temp = ""
+
+                    friend_list_temp = '<div class="my_friend_list" id="id_'+userName+'">\n'
                     i = 0
                     for user in user_list.find():
-                        print("debug: ",user['UserName'])
-                        print("debug2: ",MyTCPHandler.ws_users.keys())
-                        if user['UserName'] in MyTCPHandler.ws_users.keys() and user['UserName'] != userName.encode():
 
-                            # display friend list template
-                            friend_list_temp += '<button id="friend'+str(i)+'" onclick="document.getElementById(\'chat'+str(i)+'\').style.display=\'block\';pass_friend'+str(i)+'_name();cleanBadge()" style="width: max-content;" class="button" value="'+user["UserName"].decode()+'">'+user["UserName"].decode()+' <span id="badge_'+user["UserName"].decode()+'" class="badge"></span></button><br>'
+                        if user['UserName'] != userName.encode():
+                            friend_name = user["UserName"].decode()
+
                             # display friend name script template
-                            friend_list_js_temp += 'function pass_friend'+str(i)+'_name(){\n'
-                            friend_list_js_temp += 'document.getElementById("sendTo").value = document.getElementById("friend'+str(i)+'").value;\n'
+                            friend_list_js_temp += 'function pass_friend_'+friend_name+'(){\n'
+                            friend_list_js_temp += 'document.getElementById("sendTo").value = document.getElementById("friend_'+friend_name+'").value;\n'
                             friend_list_js_temp += '}\n'
 
-                            chat_box_temp += '<div id="chat'+str(i)+'" class="modal">\n'
-                            chat_box_temp += '<div class="imgcontainer" style="background:#F1D5EF">\n'
-                            chat_box_temp += user['UserName'].decode('utf-8')+'\n'
+                            chat_box_temp += '<div id="chat_'+friend_name+'" class="modal" style="overflow:scroll" >\n'
+                            chat_box_temp += '<div class="imgcontainer" style="background:#F1D5EF" >\n'
+                            chat_box_temp += friend_name+'\n'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '<div class="container" >\n'
-                            chat_box_temp += '<div id="chat'+user['UserName'].decode('utf-8')+'" class="chatBox">\n'
+                            chat_box_temp += '<div id="chatBox_'+friend_name+'" class="chatBox" >\n'
                             chat_box_temp += '</div>\n\n'
                             chat_box_temp += '<div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">\n'
-                            chat_box_temp += '<textarea id="friendName_'+user['UserName'].decode()+'" name="message" required style="position: relative;margin-left: 0;display: inline-block;">\n'
+                            chat_box_temp += '<textarea id="friendName_'+friend_name+'" name="message" required style="position: relative;margin-left: 0;display: inline-block;">\n'
                             chat_box_temp += 'Sending text...\n'
                             chat_box_temp += '</textarea>\n'
                             chat_box_temp += '<button onclick="sendMessage()">Send msg</button>'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '<br>\n'
-                            chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat'+str(i)+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
+                            chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat_'+friend_name+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '</div>\n\n'
-                            i+=1
 
+                            i+=1
+                    friend_list_temp += '</div>\n'
                     content = content.replace(content[friend_list_starting_pos:friend_list_ending_pos],friend_list_temp.encode())
 
                     friend_list_js_temp += '</script><br>\n'
@@ -340,7 +341,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             for document in user_list.find():
                 if "cookie" in document:
                     if bcrypt.checkpw(token,document['cookie']):
-                        username = document['UserName']
+                        username = document['UserName'].decode()
             if username == "":
                 print("invalid cookie, should return 403 response")
 
@@ -366,7 +367,21 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             print("adding ",username," into ws_user")
             print("now ws_user has online user: ",MyTCPHandler.ws_users.keys())
 
+            # send online user to client -------------------------------------------------------------------
+            online_user = list(MyTCPHandler.ws_users.keys())
+            online_user_msg = json.dumps({"messageType":"online-user","userList":online_user}).encode()
+            online_user_msg_bin = ""
+            for b in online_user_msg:
+                online_user_msg_bin += '{0:08b}'.format(b)
+            length = '{0:08b}'.format(len(online_user_msg))
+            online_user_frame = "10000001" + length+online_user_msg_bin
+            online_user_frame_bytes = int(online_user_frame, 2).to_bytes((len(online_user_frame) + 7) // 8, byteorder='big')
+            for k,v in MyTCPHandler.ws_users.items():
+                v.request.sendall(online_user_frame_bytes)
+            #------------------------------------------------------------------------------------------------
+
             while True:
+
                 recv_bytes = self.request.recv(1024)
 
                 if len(recv_bytes) > 1:
@@ -374,6 +389,16 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     if recv_bytes[0] == 136:
                         MyTCPHandler.ws_users.pop(username)
                         print("username: ",username," is disconnected")
+                        online_user_msg = json.dumps({"messageType":"user_disconnecting","user":username}).encode()
+                        online_user_msg_bin = ""
+                        for b in online_user_msg:
+                            online_user_msg_bin += '{0:08b}'.format(b)
+                        length = '{0:08b}'.format(len(online_user_msg))
+                        online_user_frame = "10000001" + length+online_user_msg_bin
+                        online_user_frame_bytes = int(online_user_frame, 2).to_bytes((len(online_user_frame) + 7) // 8, byteorder='big')
+                        for k,v in MyTCPHandler.ws_users.items():
+                            print(k,v)
+                            v.request.sendall(online_user_frame_bytes)
                         break
 
                     payload_len = recv_bytes[1]-128
@@ -499,17 +524,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             frameToSend = "10000001" + lengthToSend + payloadToSend
                             bytesToSend = int(frameToSend, 2).to_bytes((len(frameToSend) + 7) // 8, byteorder='big')
 
-
                             for k,v in MyTCPHandler.ws_users.items():
-                                if k == sender.encode():
-                                    print("send",k)
+                                if k == sender:
                                     v.request.sendall(bytesToSend)
-                                if k == receiver.encode():
-                                    print("recv",k)
+                                if k == receiver:
                                     v.request.sendall(bytesToSend)
 
                         for document in chat_history.find():
-                            print("inserting: ",document['sender'],sender,receiver)
+
                             if document['sender'] == sender:
                                 chats = document['all_chats']
                                 chats[receiver].append("1"+message)
@@ -520,9 +542,20 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 chat_history.update_one({"sender":receiver},{"$set":{"all_chats":chats}})
 
                     elif payload_bin.find(break_bin) == 0:
-
                         MyTCPHandler.ws_users.pop(username)
+
+                        online_user_msg = json.dumps({"messageType":"user_disconnecting","user":username}).encode()
+                        online_user_msg_bin = ""
+                        for b in online_user_msg:
+                            online_user_msg_bin += '{0:08b}'.format(b)
+                        length = '{0:08b}'.format(len(online_user_msg))
+                        online_user_frame = "10000001" + length+online_user_msg_bin
+                        online_user_frame_bytes = int(online_user_frame, 2).to_bytes((len(online_user_frame) + 7) // 8, byteorder='big')
+                        for k,v in MyTCPHandler.ws_users.items():
+                            print(k,v)
+                            v.request.sendall(online_user_frame_bytes)
                         break
+
                     else:
                         print("error 001")
         elif data_arr[0] == b'GET ' and b'chat-history' in data_arr[1]:
@@ -683,11 +716,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 l_image = len(image)
                 self.request.sendall(('HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: ' + str(
                     l_image) + '\r\nX-Content-Type-Options: nosniff' + "\r\n\r\n").encode() + image)
-        elif data_arr[1] == b'logout HTTP':
-
-            self.request.sendall(
-                "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
-                "nosniff\r\nLocation:http://localhost:8080/\r\n\r\n".encode())
         else:
             self.request.sendall(toolBox.function_404('This does not exist!'))
 

@@ -117,6 +117,19 @@
     <p>About Us</p >
 
 </footer>
-
+<script>
+    let query = new URLSearchParams(window.location.search)
+    if (query.has('error')) {
+        if (query.get('error') === "username") {
+            document.querySelector('#fname-error').style.display = 'block'
+        } else if (query.get('error') === "password") {
+            document.querySelector('#password-error').style.display = 'block'
+        }
+    }
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 
 </body>
+</html>
