@@ -32,10 +32,11 @@ function breakWebSocketConn(){
 function displayChatHistory(all_chats) {
     // all_chats = {friend1:["0hello","1hi","1how are you","0im good"],friend2:["1im kylin"]}
     console.log("all_chat",all_chats)
+    let chat_temp = ""
     for (const [key, value] of Object.entries(all_chats)) {
         let friendName = key;
         let chats = value;
-        let chat_temp = ""
+        chat_temp = ""
         for(let i=0;i<chats.length;i++){
             let msg = chats[i]
             if(msg[0] === '0'){
@@ -49,7 +50,12 @@ function displayChatHistory(all_chats) {
 
         console.log("temp",chat_temp) // <p dir="rtl"></p >
         console.log("id: ","chat"+friendName) //chatfirefox
-        document.getElementById("chat"+friendName).innerHTML = chat_temp;
+        let foo = document.getElementById("chat"+friendName)
+        console.log(foo)
+        if (foo != null){
+            document.getElementById("chat"+friendName).innerHTML = chat_temp;
+        }
+
     }
 
 }
