@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import os
 import sys
 
-mongo_client = MongoClient('mongo')
+mongo_client = MongoClient('localhost')
 mydb = mongo_client["CSE312db"]
 user_list = mydb["user"]
 
@@ -41,7 +41,6 @@ def findUserPassword(receivedStr, boundary):
     lastIndex = password.find(b'\r\n')
     password = password[:lastIndex]
     return password
-
 
 def findUserfromDB(userName):
     userInformation = user_list.find_one({'UserName': userName})
@@ -111,17 +110,13 @@ def find_userName(res_dict):
         i = i.strip()
         a = i.split('=')
         cookieDic[a[0]] = a[1]
-    print("cookieDic :", cookieDic)
     sys.stdout.flush()
     for i in list(user_list.find({})):
-        print('i:', i)
-        sys.stdout.flush()
+
         if 'cookie' in i and 'token' in cookieDic:
             if bcrypt.checkpw(cookieDic['token'].encode(), i['cookie']):
-                print('checking identity correctly')
                 sys.stdout.flush()
                 visitorName = i['UserName'].decode()
-                print('visitorName :', visitorName)
                 sys.stdout.flush()
                 visitorName = visitorName.replace('&', '&amp')
                 visitorName = visitorName.replace('<', '&lt')
