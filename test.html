@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="functions.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="../style.css"/>
+
+
     <style>
         .jumbotron{
             background-image: url("../sakura.jpg");
@@ -65,7 +68,6 @@
 
         .container {
             padding: 16px;
-            height: auto;
         }
 
         span.psw {
@@ -169,17 +171,14 @@
 
 <nav class="navbar">
     <div class="container-fluid">
-        <ul class="nav navbar-nav" style="width: 100%">
-            <div class="navbar-header">
-                <a class="navbar-brand" href=" " >UBChatting</a >
-            </div>
-            <li class="active" ><a href="#">Home</a ></li>
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#" >UBChatting</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="active" ><a href="#">Home</a></li>
             <li><a href="#">Chat</a ></li>
-            <li><a href="#">profile</a ></li>
-            <!--            <li><a href="#">Page 3</a ></li>-->
-            <li style = "float: right">
-                <a href ='/logout' onclick="breakWebSocketConn()">log out </a >
-            </li>
+            <li><a href="#"> profile</a></li>
+            <!--            <li><a href="#">Page 3</a></li>-->
         </ul>
     </div>
 </nav>
@@ -214,15 +213,14 @@
                                 <h4 class="modal-title">Change Your Header Image Here</h4>
                             </div>
                             <div class="modal-body">
-                                <form action="/createMoment" method="post" enctype="multipart/form-data">
+                                <form action="/changeImage" method="post" enctype="multipart/form-data">
                                     <label for="form-image">Image: </label>
                                     <input id="form-image" type="file" name="upload">
-
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success">Change My Image</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
                                 </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-success">Change My Image</button>
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
@@ -230,8 +228,9 @@
                 <div class="col-sm-7"><img src="user_head.jpg" alt="user_image" class="header_image"/></div>
             </div>
             <div class="text-right">
-                <h3>{{username}}</h3>
-                <input type="text" id="me" value="chrome" hidden>
+
+                <h3>Welcome back! chrome</h3>
+                <input type="text" id="me" value="" hidden>
                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal" style="background-color: #F1D5EF">make a moment</button>
             </div>
             <!-- Modal -->
@@ -267,11 +266,11 @@
         </div>
     </div>
     <!--  zeng-->
-    <div class="col-sm-8" style="overflow:scroll; height:700px;">
+    <div class="col-sm-8" style="overflow:scroll; height:400px;">
         <div class="container" >
             <hr>
             <h1 style="text-align:center; color:#F1D5EF;">Make first Post On The Moment!</h1>
-
+            <hr>
 
 
         </div>
@@ -283,72 +282,43 @@
                 <br>
 
                 <input type="text" id="sendTo" name="sendTo" value="sendTo_name" style="" hidden>
-                <p hidden>friend list class start loop</p><button id="friend0" onclick="document.getElementById('chat0').style.display='block';pass_friend0_name()" style="width:auto;" class="button">firefox</button><br>
-                <button id="friend1" onclick="document.getElementById('chat1').style.display='block';pass_friend1_name()" style="width:auto;" class="button">safari</button><br>
-                <button id="friend2" onclick="document.getElementById('chat2').style.display='block';pass_friend2_name()" style="width:auto;" class="button">edge</button><br>
+                <p hidden>friend list class start loop</p>
+                <button id="friend1" onclick="document.getElementById('chat01').style.display='block';pass_friend1_name()" style="width:auto;" class="button">Friend1</button><br>
+                <button id="friend2" onclick="document.getElementById('chat02').style.display='block';pass_friend2_name" style="width:auto;" class="button">Friend2</button><br>
                 <p hidden>friend list class end loop</p>
 
-                <p hidden>chat box start loop</p><div id="chat0" class="modal">
-                <div class="imgcontainer" style="background:#F1D5EF">
-                    firefox
-                </div>
-                <div class="container" >
-                    <div id="chatfirefox" class="chatBox">
-                    </div>
+                <p hidden>chat box start loop</p>
+                <div id="chat01" class="modal">
 
-                    <div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">
-<textarea id="friendName_firefox" name="message" required style="position: relative;margin-left: 0;display: inline-block;">
-Sending text...
-</textarea>
-                        <button onclick="sendMessage()">Send msg</button></div>
-                    <br>
-                    <button type="button" onclick="document.getElementById('chat0').style.display='none'" class="cancelbtn">Cancel</button>
-                </div>
-            </div>
-
-                <div id="chat1" class="modal">
                     <div class="imgcontainer" style="background:#F1D5EF">
-                        safari
+                        username
                     </div>
                     <div class="container" >
-                        <div id="chatsafari" class="chatBox">
+                        <div id="chatfriendName" class="chatBox">
+                            <p hidden>friend1 chat history start loop</p>
+                            <p dir="ltr">hi</p >
+                            <p dir="rtl">hello</p >
+                            <p hidden>friend1 chat history end loop</p>
                         </div>
 
                         <div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">
-<textarea id="friendName_safari" name="message" required style="position: relative;margin-left: 0;display: inline-block;">
-Sending text...
-</textarea>
-                            <button onclick="sendMessage()">Send msg</button></div>
-                        <br>
-                        <button type="button" onclick="document.getElementById('chat1').style.display='none'" class="cancelbtn">Cancel</button>
-                    </div>
-                </div>
+                <textarea id="friendName_" name="message" required style="position: relative;margin-left: 0;display: inline-block;">
+                  Sending text...
+                </textarea>
+                            <button onclick="sendMessage()">Send msg</button>
 
-                <div id="chat2" class="modal">
-                    <div class="imgcontainer" style="background:#F1D5EF">
-                        edge
-                    </div>
-                    <div class="container" >
-                        <div id="chatedge" class="chatBox">
                         </div>
-
-                        <div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">
-<textarea id="friendName_edge" name="message" required style="position: relative;margin-left: 0;display: inline-block;">
-Sending text...
-</textarea>
-                            <button onclick="sendMessage()">Send msg</button></div>
                         <br>
-                        <button type="button" onclick="document.getElementById('chat2').style.display='none'" class="cancelbtn">Cancel</button>
-                    </div>
-                </div>
 
+                        <button type="button" onclick="document.getElementById('chat01').style.display='none'" class="cancelbtn">Cancel</button>
+                    </div>
+
+                </div>
                 <p hidden>chat box end loop</p>
 
             </div>
         </div>
     </div>
-</div>
-
 </div>
 
 </body>
@@ -359,19 +329,15 @@ Sending text...
     <p>About Us</p >
 </footer>
 
-<p hidden>friend list js start loop</p><script>
-    function pass_friend0_name(){
-        document.getElementById("sendTo").value = document.getElementById("friend0").innerHTML;
-    }
+<p hidden>friend list js start loop</p>
+<script>
     function pass_friend1_name(){
         document.getElementById("sendTo").value = document.getElementById("friend1").innerHTML;
     }
     function pass_friend2_name(){
         document.getElementById("sendTo").value = document.getElementById("friend2").innerHTML;
     }
-</script><br>
+</script>
 <p hidden>friend list js end loop</p>
-
-
 
 </html>

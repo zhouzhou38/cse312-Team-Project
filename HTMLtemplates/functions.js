@@ -24,6 +24,10 @@ function sendMessage() {
     }
 }
 
+function breakWebSocketConn(){
+    socket.send(JSON.stringify({'messageType': 'break'}))
+}
+
 // Renders a new chat message to the page
 function displayChatHistory(all_chats) {
     // all_chats = {friend1:["0hello","1hi","1how are you","0im good"],friend2:["1im kylin"]}

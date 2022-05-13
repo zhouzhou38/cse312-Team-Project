@@ -116,6 +116,7 @@ def parse_to_dict(header_bytes):
 def find_userName(res_dict):
     cookieDic = {}
     visitorName = ''
+    print("res: ",res_dict)
     CookieLst = (res_dict['Cookie']).split(';')
     for i in CookieLst:
         i = i.strip()
@@ -128,10 +129,10 @@ def find_userName(res_dict):
         # sys.stdout.flush()
         if 'cookie' in i and 'token' in cookieDic:
             if bcrypt.checkpw(cookieDic['token'].encode(), i['cookie']):
-                print('checking identity correctly')
+
                 sys.stdout.flush()
                 visitorName = i['UserName'].decode()
-                print('visitorName :', visitorName)
+
                 sys.stdout.flush()
                 visitorName = visitorName.replace('&', '&amp')
                 visitorName = visitorName.replace('<', '&lt')

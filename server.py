@@ -108,7 +108,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/?error=username\r\n\r\n"
                 self.request.sendall(header)
         elif data_arr[0] == b'GET ' and b'profile' in data_arr[1]:
-            print('enter here plz')
+
             sys.stdout.flush()
             # headerLst = data.split(b"\r\n")
             header_dict = toolBox.parse_to_dict(data)
@@ -131,13 +131,15 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     friend_list_temp = ""
                     friend_list_starting_pos = content.find(b'<p hidden>friend list class start loop</p>')+len('<p hidden>friend list class start loop</p>')
                     friend_list_ending_pos = content.find(b'<p hidden>friend list class end loop</p>')
-                    print("pos",friend_list_starting_pos,friend_list_ending_pos)
+
                     friend_list_js_temp = "<script>\n"
                     chat_box_temp = ""
                     i = 0
                     for user in user_list.find():
-                        if user['UserName'].decode('utf-8') in MyTCPHandler.ws_users.keys():
-                        # if user['UserName'] != userName.encode():
+                        print("debug: ",user['UserName'])
+                        print("debug2: ",MyTCPHandler.ws_users.keys())
+                        if user['UserName'] in MyTCPHandler.ws_users.keys() and user['UserName'] != userName.encode():
+
                             # display friend list template
                             friend_list_temp += "<button id=\"friend"+str(i)+"\" onclick=\"document.getElementById('chat"+str(i)+"').style.display='block';pass_friend"+str(i)+"_name()\" style=\"width:auto;\" class=\"button\">"+user["UserName"].decode()+"</button><br>\n"
 
@@ -274,11 +276,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         self.request.sendall(byte_txt + str(length_text).encode() + (
                                 '\r\nX-Content-Type-Options: nosniff' + '\r\n\r\n').encode() + b_new_content)
         elif data_arr[0] == b'GET ' and data_arr[1] == b'style.css HTTP':
-            print('starting request css')
+
             sys.stdout.flush()
             self.request.sendall(toolBox.css_sender('style.css'))
         elif data_arr[0] == b'GET ' and data_arr[1] == b'functions.js HTTP':
-            print("doing js")
+
             header = "HTTP/1.1 200 OK\r\nContent-Type: text/javascript; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\n"
             f = open('HTMLtemplates/functions.js', 'r')
 
@@ -311,8 +313,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     f.write(image)
                     self.request.sendall(toolBox.image_sender(filename))
         elif data_arr[0] == b'POST ' and data_arr[1] == b'changeImage HTTP':
-
-            header_dict = toolBox.parse_to_dict(data)
+            newdata = data.split(b'\r\n\r\n')[0]
+            header_dict = toolBox.parse_to_dict(newdata)
             userName = toolBox.find_userName(header_dict)
             if userName is None:
                 self.request.sendall(
@@ -344,7 +346,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             if username == "":
                 print("invalid cookie, should return 403 response")
 
-
             header = "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Accept: "
             start_pos = data.find(b"Sec-WebSocket-Key: ") + len(b"Sec-WebSocket-Key: ")
             end_pos = start_pos
@@ -364,7 +365,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(header_byte)
 
             MyTCPHandler.ws_users[username] = self
-
+            print("adding ",username," into ws_user")
+            print("now ws_user has online user: ",MyTCPHandler.ws_users.keys())
 
             while True:
                 recv_bytes = self.request.recv(1024)
@@ -412,7 +414,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     offer_bin = ''.join(format(ord(i), '08b') for i in '{"messageType":"webRTC-offer"')
                     answer_bin = ''.join(format(ord(i), '08b') for i in '{"messageType":"webRTC-answer"')
                     cand_bin = ''.join(format(ord(i), '08b') for i in '{"messageType":"webRTC-candidate"')
-
+                    break_bin = ''.join(format(ord(i), '08b') for i in '{"messageType":"break"')
 
                     # if payload is webRTC
                     if payload_bin.find(offer_bin) == 0 or payload_bin.find(answer_bin) == 0 or payload_bin.find(cand_bin) == 0:
@@ -519,7 +521,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 chats[sender].append("0"+message)
                                 chat_history.update_one({"sender":receiver},{"$set":{"all_chats":chats}})
 
+                    elif payload_bin.find(break_bin) == 0:
 
+                        MyTCPHandler.ws_users.pop(username)
+                        break
                     else:
                         print("error 001")
         elif data_arr[0] == b'GET ' and b'chat-history' in data_arr[1]:
@@ -538,10 +543,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 chats = []
                 # sender:chrome all_chats = {friend1:["0hello","1hi","1how are you","0im good"],friend2:["1im kylin"]}
                 for document in chat_history.find():
-                    print("for: ",document['sender'],username)
+
                     if document['sender'].encode() == username:
                         chats = document["all_chats"]
-                print("sending chat to client",chats)
+
                 json_chat = json.dumps(chats, default=str)
                 header += "Content-length: "+str(len(json_chat)) + '\r\n\r\n'+json_chat
                 self.request.sendall(header.encode())
@@ -681,6 +686,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(('HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: ' + str(
                     l_image) + '\r\nX-Content-Type-Options: nosniff' + "\r\n\r\n").encode() + image)
         elif data_arr[1] == b'logout HTTP':
+
             self.request.sendall(
                 "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
                 "nosniff\r\nLocation:http://localhost:8080/\r\n\r\n".encode())
