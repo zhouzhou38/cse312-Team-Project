@@ -13,6 +13,7 @@ document.addEventListener("keypress", function (event) {
 // Read the comment the user is sending to chat and send it to the server over the WebSocket as a JSON string
 function sendMessage() {
     let friendName = document.getElementById("sendTo").value
+    console.log("friendname: ",friendName)
     const chatBox = document.getElementById("friendName_"+friendName);
     const comment = chatBox.value
     chatBox.value = "";
@@ -48,10 +49,8 @@ function displayChatHistory(all_chats) {
             }
         }
 
-        console.log("temp",chat_temp) // <p dir="rtl"></p >
-        console.log("id: ","chat"+friendName) //chatfirefox
+
         let foo = document.getElementById("chat"+friendName)
-        console.log(foo)
         if (foo != null){
             document.getElementById("chat"+friendName).innerHTML = chat_temp;
         }
@@ -75,6 +74,13 @@ function get_chat_history() {
     request.send();
 }
 
+function cleanBadge(){
+    // chrome <span id="badge_chrome" class="badge"></span>
+    let receiver = document.getElementById("sendTo").value
+    console.log("badge rec: ",receiver)
+    document.getElementById("badge_"+receiver).innerHTML = ""
+}
+
 function addMessage(msg){
     console.log("msg: ",msg)
     let sender = msg['sender']
@@ -87,16 +93,28 @@ function addMessage(msg){
     }else{
         document.getElementById("chat"+sender).innerHTML += "\n<p style=\"text-align: left\">"+m+"</p>\n"
     }
+
+
 }
 
 // Called whenever data is received from the server over the WebSocket connection
 socket.onmessage = function (ws_message) {
     const message = JSON.parse(ws_message.data);
     const messageType = message.messageType
-
+    console.log("ws: ",message)
     switch (messageType) {
         case 'chatMessage':
-
+            const sender = message.sender
+            console.log(document.getElementById('me').value,sender)
+            if(document.getElementById('me').value !== sender){
+                let count = document.getElementById("badge_"+sender).innerHTML
+                console.log("count: ",count)
+                if(count ===""){
+                    document.getElementById("badge_"+sender).innerHTML = "1"
+                }else{
+                    document.getElementById("badge_"+sender).innerHTML = (parseInt(count)+1).toString()
+                }
+            }
             addMessage(message);
             break;
         case 'webRTC-offer':

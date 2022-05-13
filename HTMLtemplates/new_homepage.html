@@ -296,8 +296,8 @@
 
           <input type="text" id="sendTo" name="sendTo" value="sendTo_name" style="" hidden>
           <p hidden>friend list class start loop</p>
-          <button id="friend1" onclick="document.getElementById('chat01').style.display='block';pass_friend1_name()" style="width:auto;" class="button">Friend1</button><br>
-          <button id="friend2" onclick="document.getElementById('chat02').style.display='block';pass_friend2_name" style="width:auto;" class="button">Friend2</button><br>
+          <button id="friend1" onclick="document.getElementById('chat01').style.display='block';pass_friend1_name();cleanBadge()" style="width: max-content;" class="button" value="">Friend1 <span id="badge_friendName1" class="badge"></span></button><br>
+          <button id="friend2" onclick="document.getElementById('chat02').style.display='block';pass_friend2_name();cleanBadge()" style="width: max-content;" class="button" value="">Friend2 <span id="badge_friendName2" class="badge"></span></button><br>
           <p hidden>friend list class end loop</p>
 
           <p hidden>chat box start loop</p>
@@ -318,7 +318,9 @@
                 <textarea id="friendName_" name="message" required style="position: relative;margin-left: 0;display: inline-block;">
                   Sending text...
                 </textarea>
-                <button onclick="sendMessage()">Send msg</button>
+                <button style="background-color:#F1D5EF" onclick="sendMessage()">Send msg</button>
+                <button style="background-color:#F1D5EF" onclick="connectWebRTC();startVideo()">video chat</button>
+
 
               </div>
               <br>
@@ -348,7 +350,10 @@ function pass_friend1_name(){
     document.getElementById("sendTo").value = document.getElementById("friend1").innerHTML;
 }
 function pass_friend2_name(){
-    document.getElementById("sendTo").value = document.getElementById("friend2").innerHTML;
+
+    document.getElementById("sendTo").value = document.getElementById("friend2").value;
+
+
 }
 </script>
 <p hidden>friend list js end loop</p>

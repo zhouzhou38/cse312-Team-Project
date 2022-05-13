@@ -141,11 +141,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         if user['UserName'] in MyTCPHandler.ws_users.keys() and user['UserName'] != userName.encode():
 
                             # display friend list template
-                            friend_list_temp += "<button id=\"friend"+str(i)+"\" onclick=\"document.getElementById('chat"+str(i)+"').style.display='block';pass_friend"+str(i)+"_name()\" style=\"width:auto;\" class=\"button\">"+user["UserName"].decode()+"</button><br>\n"
-
+                            friend_list_temp += '<button id="friend'+str(i)+'" onclick="document.getElementById(\'chat'+str(i)+'\').style.display=\'block\';pass_friend'+str(i)+'_name();cleanBadge()" style="width: max-content;" class="button" value="'+user["UserName"].decode()+'">'+user["UserName"].decode()+' <span id="badge_'+user["UserName"].decode()+'" class="badge"></span></button><br>'
                             # display friend name script template
                             friend_list_js_temp += 'function pass_friend'+str(i)+'_name(){\n'
-                            friend_list_js_temp += 'document.getElementById("sendTo").value = document.getElementById("friend'+str(i)+'").innerHTML;\n'
+                            friend_list_js_temp += 'document.getElementById("sendTo").value = document.getElementById("friend'+str(i)+'").value;\n'
                             friend_list_js_temp += '}\n'
 
                             chat_box_temp += '<div id="chat'+str(i)+'" class="modal">\n'
@@ -165,7 +164,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat'+str(i)+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '</div>\n\n'
-
                             i+=1
 
                     content = content.replace(content[friend_list_starting_pos:friend_list_ending_pos],friend_list_temp.encode())
