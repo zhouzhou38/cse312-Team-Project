@@ -36,7 +36,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             header += b'\r\n\r\n'
             header += content
             self.request.sendall(header)
-
         elif data_arr[0] == b'GET ' and data_arr[1] == b'Signup HTTP':
             # print('in here')
             # sys.stdout.flush()
@@ -49,7 +48,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             header += b'\r\n\r\n'
             header += content
             self.request.sendall(header)
-
         elif data_arr[0] == b'POST ' and b'Signup' in data_arr[1]:
             print('post Signup')
             boundary = toolBox.findBoundary(data)
@@ -58,6 +56,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             while totaldata.find(finalBoundary) == -1:
                 totaldata += self.request.recv(1024)
             userName = toolBox.findUserName(totaldata, boundary)
+            userName = self.escape_html(userName)
             password = toolBox.findUserPassword(totaldata, boundary)
             information = toolBox.findUserfromDB(userName)
             # print(userName)
@@ -83,7 +82,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             else:
                 header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/Signup/?error=username\r\n\r\n"
                 self.request.sendall(header)
-
         elif data_arr[0] == b'POST ' and data_arr[1] == b'profile HTTP':
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
@@ -138,7 +136,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     chat_box_temp = ""
                     i = 0
                     for user in user_list.find():
-                        if user['UserName'] != userName.encode():
+                        if user['UserName'].decode('utf-8') in MyTCPHandler.ws_users.keys():
+                        # if user['UserName'] != userName.encode():
                             # display friend list template
                             friend_list_temp += "<button id=\"friend"+str(i)+"\" onclick=\"document.getElementById('chat"+str(i)+"').style.display='block';pass_friend"+str(i)+"_name()\" style=\"width:auto;\" class=\"button\">"+user["UserName"].decode()+"</button><br>\n"
 
@@ -274,7 +273,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8" + "\r\nContent-Length: ").encode()
                         self.request.sendall(byte_txt + str(length_text).encode() + (
                                 '\r\nX-Content-Type-Options: nosniff' + '\r\n\r\n').encode() + b_new_content)
-
         elif data_arr[0] == b'GET ' and data_arr[1] == b'style.css HTTP':
             print('starting request css')
             sys.stdout.flush()
@@ -292,10 +290,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 header = header + line
             dataToSend = header.encode()
             self.request.sendall(dataToSend)
-
         elif data_arr[0] == b'GET ' and b'sakura.jpg HTTP' in data_arr[1]:
             self.request.sendall(toolBox.image_sender('sakura.jpg'))
-
         elif data_arr[0] == b'GET ' and b'user_head.jpg' in data_arr[1]:
             # headerLst = data.split(b"\r\n")
             header_dict = toolBox.parse_to_dict(data)
@@ -314,7 +310,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     f = open(filename,'wb')
                     f.write(image)
                     self.request.sendall(toolBox.image_sender(filename))
-
         elif data_arr[0] == b'POST ' and data_arr[1] == b'changeImage HTTP':
 
             header_dict = toolBox.parse_to_dict(data)
@@ -337,7 +332,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(header)
         elif data_arr[0] == b'GET ' and b'wallpaper.jpg HTTP' in data_arr[1]:
             self.request.sendall(toolBox.image_sender('wallpaper.jpg'))
-
         elif data_arr[0] == b'GET ' and data_arr[1] == b'websocket HTTP':
             token_start_pos = data.find(b"token=")+len(b"token=")
             token_end_pos = data[token_start_pos:].find(b"\r")+token_start_pos
@@ -370,6 +364,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(header_byte)
 
             MyTCPHandler.ws_users[username] = self
+
 
             while True:
                 recv_bytes = self.request.recv(1024)
@@ -527,7 +522,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
                     else:
                         print("error 001")
-
         elif data_arr[0] == b'GET ' and b'chat-history' in data_arr[1]:
             token_start_pos = data.find(b"token=")+len(b"token=")
             token_end_pos = data[token_start_pos:].find(b"\r")+token_start_pos
@@ -551,7 +545,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 json_chat = json.dumps(chats, default=str)
                 header += "Content-length: "+str(len(json_chat)) + '\r\n\r\n'+json_chat
                 self.request.sendall(header.encode())
-
         elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
             b_blankLine = b'\r\n\r\n'
             header_bytes = data.split(b_blankLine)[0]
@@ -687,18 +680,15 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 l_image = len(image)
                 self.request.sendall(('HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: ' + str(
                     l_image) + '\r\nX-Content-Type-Options: nosniff' + "\r\n\r\n").encode() + image)
-
         elif data_arr[1] == b'logout HTTP':
             self.request.sendall(
                 "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
                 "nosniff\r\nLocation:http://localhost:8080/\r\n\r\n".encode())
         else:
-
             self.request.sendall(toolBox.function_404('This does not exist!'))
 
     def escape_html(self, input):
         return input.replace(b'&', b'&amp').replace(b'<', b'&lt;').replace(b'>', b'&gt;')
-
 
 if __name__ == '__main__':
     host = '0.0.0.0'
