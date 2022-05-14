@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>UB chatting</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="functions.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="../style.css"/>
+
+
+<style>
+  .container-fluid{
+    background-color: #FEFAD7;
+    color: #050505;
+
+  }
+  p {
+    font-style: oblique;
+  }
+  .jumbotron{
+            background-image: url("../sakura.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            background-size: cover;
+
+        }
+
+
+        body {font-family: Arial, Helvetica, sans-serif;}
+
+
+        /* Set a style for all buttons */
+        .button{
+            background-color: #F1D5EF;
+            color: black;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        /* Extra styles for the cancel button */
+        .cancelbtn {
+            width: auto;
+            padding: 10px 18px;
+            background-color: black;
+            color: white;
+        }
+
+        /* Center the image and position the close button */
+        /*.imgcontainer {*/
+        /*    text-align: center;*/
+        /*    position: relative;*/
+        /*}*/
+        .imgcontainer {
+          text-align: center;
+          position: relative;
+          height: 30px;
+          font-size: x-large;
+        }
+        img.avatar {
+            width: 40%;
+            border-radius: 50%;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        span.psw {
+            float: right;
+            padding-top: 16px;
+        }
+
+        /* The Modal (background) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1050; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color:  #FEFAD7;
+            margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        /* The Close Button (x) */
+        .close {
+            position: absolute;
+            right: 25px;
+            top: 0;
+            color: #000;
+            font-size: 35px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: red;
+            cursor: pointer;
+        }
+
+        /* Add Zoom Animation */
+        .animate {
+            -webkit-animation: animatezoom 0.6s;
+            animation: animatezoom 0.6s
+        }
+
+        @-webkit-keyframes animatezoom {
+            from {-webkit-transform: scale(0)}
+            to {-webkit-transform: scale(1)}
+        }
+
+        @keyframes animatezoom {
+            from {transform: scale(0)}
+            to {transform: scale(1)}
+        }
+
+        Change styles for span and cancel button on extra small screens
+        @media screen and (max-width: 300px) {
+            span.psw {
+                display: block;
+                float: none;
+            }
+            .cancelbtn {
+                width: 100%;
+            }
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px 20px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #F1D5EF;
+            font-size: 16px;
+        }
+        div.chatBox {
+            position: revert;
+            bottom:18px;
+            right: 18px;
+            width: auto;
+            height: 400px;
+            border: 3px solid #F1D5EF;
+            overflow:scroll;
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<nav class="navbar">
+  <div class="container-fluid">
+    <ul class="nav navbar-nav" style="width: 100%">
+      <div class="navbar-header">
+        <a class="navbar-brand" href=" " >UBChatting</a >
+      </div>
+
+
+      <li style = "float: right">
+        <a href ='/logout' onclick="breakWebSocketConn()">log out </a >
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<body onload="welcome()">
+
+  <div class="jumbotron">
+    <div class="text-center">
+      <h1 style="font-style: oblique">Enjoy Their Lives!</h1>
+    </div>
+  </div>
+
+  <div class="row">
+  <!--  zhouzhou-->
+
+    <div class="col-sm-2">
+      <div class="container">
+        <br>
+<!--        <br>-->
+        <div class="row">
+          <div class="col-sm-4">
+            <button type="button" class="btn btn-link btn-sm" data-toggle="modal" data-target="#myModal1">Edit</button>
+          </div>
+          <div class="modal fade" id="myModal1" role="dialog">
+            <div class="modal-dialog">
+
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Change Your Header Image Here</h4>
+                </div>
+                <div class="modal-body">
+                  <form action="/changeImage" method="post" enctype="multipart/form-data">
+                    <label for="form-image">Image: </label>
+                    <input id="form-image" type="file" name="upload">
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-success">Change My Image</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7"><img src="user_head.jpg" alt="user_image" class="header_image"/></div>
+        </div>
+        <div class="text-right">
+
+          <h3> <strong>{{username}}</strong></h3>
+          <input type="text" id="me" value="" hidden>
+        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal" style="background-color: #F1D5EF">make a moment</button>
+        </div>
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Share Your Life Here</h4>
+            </div>
+            <div class="modal-body">
+              <form action="/createMoment" method="post" enctype="multipart/form-data">
+
+<!--                <input value="welcomeToThisPageToken" name="xsrf_token" hidden>-->
+                <label for="image-form-comment">text_here: </label>
+                <textarea id="image-form-comment" name="text_post" cols="40" rows="6"></textarea>
+                <br/>
+                <label for="form-file">Image: </label>
+                <input id="form-file" type="file" name="upload" style="color: #F1D5EF">
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success" style="background-color: #F1D5EF">Post My Moment</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </div>
+  <!--  zeng-->
+    <div class="col-sm-8" style="overflow:scroll; height:400px;">
+      <div class="container" >
+        <hr>
+        {{start_moment}}
+        <div class="row">
+          <div class="col-sm-12">
+            <img src="user_image.jpg" alt="user_image" class="moment_image"/> <strong>{{post_username}}</strong>
+          </div>
+
+        </div>
+        <br>
+        <div class="row">
+          <div class ="col-sm-1"></div>
+          <div class="col-sm-8">
+            <p class="text-left">{{content_begin_here}} </p><br>
+
+          </div>
+        </div>
+        {{end_moment}}
+        <hr>
+
+
+      </div>
+    </div>
+<!--  kylin-->
+    <div class="col-sm-2" style="overflow:scroll; height:400px;">
+      <div class="container">
+        <h3 style="color: #F1D5EF; font-style:oblique;" >Online Users:</h3>
+        <div class="col-sm-2">
+          <br>
+          <input type="text" id="sendTo" name="sendTo" value="sendTo_name" style="" hidden>
+          <p hidden>friend list class start loop</p>
+          <div class="my_friend_list" id="myname">
+          <button id="friend1" onclick="document.getElementById('chat01').style.display='block';pass_friend1_name();cleanBadge()" style="width: max-content;" class="button" value="">Friend1 <span id="badge_friendName1" class="badge"></span></button><br>
+          <button id="friend2" onclick="document.getElementById('chat02').style.display='block';pass_friend2_name();cleanBadge()" style="width: max-content;" class="button" value="">Friend2 <span id="badge_friendName2" class="badge"></span></button><br>
+          </div>
+          <p hidden>friend list class end loop</p>
+
+          <p hidden>chat box start loop</p>
+          <div id="chat01" class="modal" >
+
+            <div class="imgcontainer" style="background:#F1D5EF">
+              username
+            </div>
+            <div class="container" >
+              <div id="chatfriendName" class="chatBox">
+                <p hidden>friend1 chat history start loop</p>
+                <p dir="ltr">hi</p >
+                <p dir="rtl">hello</p >
+                <p hidden>friend1 chat history end loop</p>
+              </div>
+
+              <div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">
+                <textarea id="friendName_" name="message" required style="position: relative;margin-left: 0;display: inline-block;">
+                  Sending text...
+                </textarea>
+                <button style="background-color:#F1D5EF" onclick="sendMessage()">Send msg</button>
+                <button style="background-color:#F1D5EF" onclick="startVideo()">start video</button>
+                <button style="background-color:#F1D5EF" onclick="connectWebRTC();">video chat</button>
+
+              </div>
+              <br>
+
+              <button type="button" onclick="document.getElementById('chat01').style.display='none'" class="cancelbtn">Cancel</button>
+            </div>
+
+          </div>
+          <p hidden>chat box end loop</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+
+
+<footer class="container-fluid text-center">
+  <p>About Us</p >
+</footer>
+<script>
+
+</script>
+
+<p hidden>friend list js start loop</p>
+<script>
+function pass_friend1_name(){
+    document.getElementById("sendTo").value = document.getElementById("friend1").innerHTML;
+}
+function pass_friend2_name(){
+
+    document.getElementById("sendTo").value = document.getElementById("friend2").value;
+
+
+}
+</script>
+<p hidden>friend list js end loop</p>
+
+</html>
