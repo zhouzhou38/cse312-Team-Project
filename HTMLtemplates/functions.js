@@ -28,6 +28,28 @@ function sendMessage() {
     }
 }
 
+function checkFileSize() {
+    let uploadField = document.getElementById("form-image");
+    uploadField.onchange = function() {
+        console.log("filesize: ",this.files[0].size)
+        if(this.files[0].size > 1000000){
+            alert("File is too big!");
+            this.value = "";
+        };
+    };
+}
+
+function checkMomentFileSize() {
+    let uploadField = document.getElementById("form-file");
+    uploadField.onchange = function() {
+        console.log("filesize: ",this.files[0].size)
+        if(this.files[0].size > 1000000){
+            alert("File is too big!");
+            this.value = "";
+        };
+    };
+}
+
 function breakWebSocketConn(){
     socket.send(JSON.stringify({'messageType': 'break'}))
 }
@@ -61,6 +83,30 @@ function displayChatHistory(all_chats) {
         if (foo != null){
             console.log("not null")
             document.getElementById("chatBox_"+friendName).innerHTML = chat_temp;
+        }else{
+            console.log("is null")
+            const friendname = friendName
+            let chat_box_temp = `<div id="${"chat_"+friendname}" class="modal" style="overflow:scroll" >`;
+            chat_box_temp += '<div class="imgcontainer" style="background:#F1D5EF" >\n';
+            chat_box_temp += friendname+`\n`
+            chat_box_temp += `</div>\n`
+            chat_box_temp += `<div class="container" >\n`;
+            chat_box_temp += `<div id="${'chatBox_'+friendname}" class="chatBox" >\n`
+            chat_box_temp += `</div>\n\n`
+            chat_box_temp += `<div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">\n`
+            chat_box_temp += `<textarea id="${'textarea_'+friendname}" name="message" required style="position: relative;margin-left: 0;display: inline-block;">\n`
+            chat_box_temp += `Sending text...\n`
+            chat_box_temp += `</textarea>\n`
+            chat_box_temp += `<button onclick="sendMessage()">Send msg</button>`
+            chat_box_temp += `</div>\n`
+            chat_box_temp += `<br>\n`
+            chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'" class="cancelbtn" onclick="cleanBadge()">Cancel</button>\n`
+            chat_box_temp += `</div>\n`
+            chat_box_temp += `</div>\n\n`
+
+            document.getElementsByClassName("my_box_list")[0].innerHTML += chat_box_temp
+            document.getElementById("chatBox_"+friendName).innerHTML = chat_temp;
+
         }
 
     }
@@ -74,7 +120,7 @@ function get_chat_history() {
         if (this.readyState === 4 && this.status === 200) {
             console.log("recv from server!")
             const messages = JSON.parse(this.response);
-            setTimeout(() => {displayChatHistory(messages)}, 3000);
+            displayChatHistory(messages);
 
         }
     };
@@ -135,8 +181,6 @@ socket.onmessage = function (ws_message) {
                 if(friendname !== me && document.getElementById("friend_"+friendname)==null){
 
 
-
-
                     // let temp =  `<button id="${"friend_"+friendname}" onclick='document.getElementById(${"'chat_"+friendname+"'"}).style.display="block";
                     // document.getElementById("sendTo").value=${"'"+friendname+"'"}';
                     // cleanBadge()' style="width: max-content;" class="button\" value=${"'"+friendname+"'"}'>${friendname}
@@ -159,6 +203,8 @@ socket.onmessage = function (ws_message) {
                     // temp += "<\/span><\/button><br>"
                     // document.getElementById("id_"+me).innerHTML += temp
 
+                }
+                if (document.getElementById("chat_"+friendname)==null){
                     let chat_box_temp = `<div id="${"chat_"+friendname}" class="modal" style="overflow:scroll" >`;
                     chat_box_temp += '<div class="imgcontainer" style="background:#F1D5EF" >\n';
                     chat_box_temp += friendname+`\n`
@@ -173,13 +219,11 @@ socket.onmessage = function (ws_message) {
                     chat_box_temp += `<button onclick="sendMessage()">Send msg</button>`
                     chat_box_temp += `</div>\n`
                     chat_box_temp += `<br>\n`
-                    chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'" class="cancelbtn">Cancel</button>\n`
+                    chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'" class="cancelbtn" onclick="cleanBadge()">Cancel</button>\n`
                     chat_box_temp += `</div>\n`
                     chat_box_temp += `</div>\n\n`
 
-
                     document.getElementsByClassName("my_box_list")[0].innerHTML += chat_box_temp
-
                 }
             }
             console.log("compare: ",document.getElementById('me').value,message.userList)

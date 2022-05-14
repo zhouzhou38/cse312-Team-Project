@@ -24,11 +24,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         data = self.request.recv(1024)
+        print("data: ",data)
         data_arr = data.split(b'/')
-        print(data_arr)
         sys.stdout.flush()
         if data_arr[0] == b"":
             pass
+
         elif data_arr[0] == b'GET ' and (b' HTTP' == data_arr[1] or b'?error=username HTTP' == data_arr[1] or b'?error=password HTTP' == data_arr[1]):
             f = open("HTMLtemplates/SignIn.html",'rb')
             content = f.read()
@@ -38,19 +39,16 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             header += content
             self.request.sendall(header)
         elif data_arr[0] == b'GET ' and (data_arr[1] == b'Signup HTTP' or data_arr[2] == b'?error=username HTTP'):
-            # print('in here')
-            # sys.stdout.flush()
+
             f = open("HTMLtemplates/Signup.html", 'rb')
             content = f.read()
-            # print(content)
-            # sys.stdout.flush()
+
             header = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\n"
             header += str(os.path.getsize("HTMLtemplates/Signup.html")).encode()
             header += b'\r\n\r\n'
             header += content
             self.request.sendall(header)
         elif data_arr[0] == b'POST ' and b'Signup' in data_arr[1]:
-            print('post Signup')
             boundary = toolBox.findBoundary(data)
             finalBoundary = boundary + b'--'
             totaldata = data
@@ -60,8 +58,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             userName = self.escape_html(userName)
             password = toolBox.findUserPassword(totaldata, boundary)
             information = toolBox.findUserfromDB(userName)
-            # print(userName)
-            # print(password)
+
             if information is None:
 
                 all_chat_history = {}
@@ -95,14 +92,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             if information is not None:
                 pwd = information['Password']
-                print("pwd: ",pwd)
                 if bcrypt.checkpw(password, pwd):
                     # localhost:5454/?name=username
                     mytoken = secrets.token_hex(16).encode()
                     tokenhashed = bcrypt.hashpw(mytoken, bcrypt.gensalt())
-                    print("username",userName.decode())
                     user_list.update_one({"UserName": userName}, {'$set': {'cookie': tokenhashed}})
-
                     header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nLocation: http://localhost:8080/profile'
                     self.request.sendall(header)
                 else:
@@ -115,12 +109,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             sys.stdout.flush()
             # headerLst = data.split(b"\r\n")
-            print("debug: ",data_arr)
             header_dict = toolBox.parse_to_dict(data)
-            print("header_dict :", header_dict)
             # sys.stdout.flush()
             userName = toolBox.find_userName(header_dict)
-            print("userName :", userName)
             # sys.stdout.flush()
             if userName is None:
                 self.request.sendall(
@@ -137,7 +128,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     temp = b'<div class="my_friend_list" id="id_'+userName.encode()+b'">\n'
                     content = content.replace(b'<div class="my_friend_list" id="id_myname">',temp)
                     content = content.replace(b'<input type="text" id="me" value="',b'<input type="text" id="me" value="'+userName.encode())
-
 
                     text = content.decode('utf-8')
                     text = text.replace('{{username}}',userName)
@@ -163,8 +153,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         advised_body = ''
 
                         for i in contentList:
-                            # print('Id-username :', i['username'])
-                            # print('len: ', len(i['comment']))
+
 
                             moment_template = text[del_idx_1 + len('{{start_moment}}'):del_idx_2]
 
@@ -182,10 +171,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 advised_body += '<br/>'
                                 advised_body += '<br/>'
                             elif len(i['comment']) == 0 and len(i['upload']) != 0:
-                                print('you should access here')
                                 sys.stdout.flush()
                                 image_id = i['id']
-                                print('repaired ID :', image_id)
                                 sys.stdout.flush()
                                 moment_template = moment_template.replace('user_image.jpg', 'user_image/user' + str(image_id) + '.jpg')
                                 str_image_id = str(image_id)
@@ -199,7 +186,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 advised_body += '<br/>'
                                 advised_body += '<br/>'
                             elif len(i['comment']) != 0 and len(i['upload']) != 0:
-                                # print('noway')
                                 # sys.stdout.flush()
                                 moment_template = moment_template.replace('{{post_username}}', i['username'])
 
@@ -212,7 +198,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 combo_content = i['comment'].decode('UTF-8') + '<br>' + sampleLink
                                 moment_template = moment_template.replace('{{content_begin_here}}', combo_content)
                                 moment_template += '<hr>'
-                                # print('path is ', sampleLink)
                                 # sys.stdout.flush()
                                 advised_body += moment_template
                                 advised_body += '<br/>'
@@ -222,7 +207,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         new_del_idx_2 = text.find('{{end_moment}}')
                         new_content = text[:new_del_idx_1 - 1] + advised_body + text[
                                                                                 new_del_idx_2 + len('{{end_moment}}'):]
-                        print("stop!!!!!!!!!!!!!!!!")
                         # ---------------------------------------------------------------------
 
                         b_new_content = new_content.encode()
@@ -237,22 +221,17 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             sys.stdout.flush()
             self.request.sendall(toolBox.css_sender('style.css'))
         elif data_arr[0] == b'GET ' and data_arr[1] == b'functions.js HTTP':
-
             header = "HTTP/1.1 200 OK\r\nContent-Type: text/javascript; charset=utf-8\r\nX-Content-Type-Options: nosniff\r\n"
-            f = open('HTMLtemplates/functions.js', 'r')
-
-            size = os.path.getsize("HTMLtemplates/functions.js")
+            with open('HTMLtemplates/functions.js', 'r') as f:
+                b = f.read()
+            size = len(b)
             header = header + "Content-length: "
             header = header + str(size)
             header = header + "\r\n\r\n"
-            for line in f:
-                header = header + line
+            header += b
             dataToSend = header.encode()
             self.request.sendall(dataToSend)
         elif data_arr[0] == b'GET ' and b'sakura.jpg HTTP' in data_arr[1]:
-
-
-            print()
             self.request.sendall(toolBox.image_sender('sakura.jpg'))
         elif data_arr[0] == b'GET ' and b'user_head.jpg' in data_arr[1]:
             # headerLst = data.split(b"\r\n")
@@ -273,6 +252,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     f.write(image)
                     self.request.sendall(toolBox.image_sender(filename))
         elif data_arr[0] == b'POST ' and data_arr[1] == b'changeImage HTTP':
+            if data.find(b'\r\n\r\n') == -1:
+                data += self.request.recv(1024)
             newdata = data.split(b'\r\n\r\n')[0]
             header_dict = toolBox.parse_to_dict(newdata)
             userName = toolBox.find_userName(header_dict)
@@ -286,6 +267,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 while totaldata.find(finalBoundary) == -1:
                     totaldata += self.request.recv(1024)
                 imagedata = toolBox.findImage(totaldata,boundary,finalBoundary)
+
                 filename = 'headImage/image' + userName + ".jpg"
                 myimage = open(filename,'wb')
                 myimage.write(imagedata)
@@ -293,9 +275,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nX-Content-Type-Options: nosniff\r\nLocation: http://localhost:8080/profile\r\n\r\n"
                 self.request.sendall(header)
         elif data_arr[0] == b'GET ' and b'wallpaper.jpg HTTP' in data_arr[1]:
-            print()
-            print()
-
             self.request.sendall(toolBox.image_sender('wallpaper.jpg'))
         elif data_arr[0] == b'GET ' and data_arr[1] == b'websocket HTTP':
             token_start_pos = data.find(b"token=")+len(b"token=")
@@ -307,8 +286,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     if bcrypt.checkpw(token,document['cookie']):
                         username = document['UserName'].decode()
             if username == "":
-                print("invalid cookie, should return 403 response")
-
+                pass
             header = "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Accept: "
             start_pos = data.find(b"Sec-WebSocket-Key: ") + len(b"Sec-WebSocket-Key: ")
             end_pos = start_pos
@@ -328,12 +306,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(header_byte)
 
             MyTCPHandler.ws_users[username] = self
-            print("adding ",username," into ws_user")
-            print("now ws_user has online user: ",MyTCPHandler.ws_users.keys())
+
 
             # send online user to client -------------------------------------------------------------------
             online_user = list(MyTCPHandler.ws_users.keys())
-            print("online_user now: ",online_user)
             online_user_msg = json.dumps({"messageType":"online-user","userList":online_user}).encode()
             online_user_msg_bin = ""
             for b in online_user_msg:
@@ -353,7 +329,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
                     if recv_bytes[0] == 136:
                         MyTCPHandler.ws_users.pop(username)
-                        print("username: ",username," is disconnected")
                         online_user_msg = json.dumps({"messageType":"user_disconnecting","user":username}).encode()
                         online_user_msg_bin = ""
                         for b in online_user_msg:
@@ -362,7 +337,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         online_user_frame = "10000001" + length+online_user_msg_bin
                         online_user_frame_bytes = int(online_user_frame, 2).to_bytes((len(online_user_frame) + 7) // 8, byteorder='big')
                         for k,v in MyTCPHandler.ws_users.items():
-                            print(k,v)
                             v.request.sendall(online_user_frame_bytes)
                         break
 
@@ -405,29 +379,23 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
                     # if payload is webRTC
                     if payload_bin.find(offer_bin) == 0 or payload_bin.find(answer_bin) == 0 or payload_bin.find(cand_bin) == 0:
-                        print("video chat")
                         if payload_len == 127:
-                            print("127")
                             lengthToSend = '{0:064b}'.format(actual_len)
                             frameToSend = "1000000101111111" + lengthToSend + payload_bin
                             bytesToSend = int(frameToSend, 2).to_bytes((len(frameToSend) + 7) // 8, byteorder='big')
                             bytesToSend = bytesToSend[:actual_len+10]
                             for k,v in MyTCPHandler.ws_users.items():
                                 if k != username:
-                                    print(username + " is sending to "+k)
                                     v.request.sendall(bytesToSend)
                         elif payload_len == 126:
-                            print("126")
                             lengthToSend = '{0:016b}'.format(actual_len)
                             frameToSend = "1000000101111110" + lengthToSend + payload_bin
                             bytesToSend = int(frameToSend, 2).to_bytes((len(frameToSend) + 7) // 8, byteorder='big')
                             bytesToSend = bytesToSend[:actual_len+4]
                             for k,v in MyTCPHandler.ws_users.items():
                                 if k != username:
-                                    print(username + " is sending to "+k)
                                     v.request.sendall(bytesToSend)
                         else:
-                            print("less than 126")
 
                             lengthToSend = '{0:08b}'.format(actual_len)
                             frameToSend = "10000001" + lengthToSend + payload_bin
@@ -435,14 +403,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             bytesToSend = bytesToSend[:actual_len+2]
                             for k,v in MyTCPHandler.ws_users.items():
                                 if k != username:
-                                    print(username + " is sending to "+k)
                                     v.request.sendall(bytesToSend)
                     # if payload is chat message
                     elif payload_bin.find(chat_msg_bin) == 0:
-                        #print("bin: ",payload_bin)
 
                         payload_msg = json.loads(int(payload_bin, 2).to_bytes((len(payload_bin) + 7) // 8, byteorder='big').decode('utf-8'))
-                        print("payload_msg:",payload_msg)
                         sender = payload_msg['sender']
                         receiver = payload_msg['receiver']
                         message = self.escape_html(payload_msg['msg'].encode()).decode()
@@ -516,12 +481,11 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         online_user_frame = "10000001" + length+online_user_msg_bin
                         online_user_frame_bytes = int(online_user_frame, 2).to_bytes((len(online_user_frame) + 7) // 8, byteorder='big')
                         for k,v in MyTCPHandler.ws_users.items():
-                            print(k,v)
                             v.request.sendall(online_user_frame_bytes)
                         break
 
                     else:
-                        print("error 001")
+                        pass
         elif data_arr[0] == b'GET ' and b'chat-history' in data_arr[1]:
             token_start_pos = data.find(b"token=")+len(b"token=")
             token_end_pos = data[token_start_pos:].find(b"\r")+token_start_pos
@@ -547,8 +511,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(header.encode())
         elif data_arr[0] == b'POST ' and data_arr[1] == b'createMoment HTTP':
             b_blankLine = b'\r\n\r\n'
+            if data.find(b'\r\n\r\n') == -1:
+                data += self.request.recv(1024)
             header_bytes = data.split(b_blankLine)[0]
-            print('post_header :', header_bytes)
             sys.stdout.flush()
             res_dict = toolBox.parse_to_dict(header_bytes)
             contentLen = int(res_dict['Content-Length'])
@@ -557,26 +522,20 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 new_recv = self.request.recv(1024)
                 data += new_recv
                 contentLen -= len(new_recv)
-            # print('whole data_recv :', data)
             # sys.stdout.flush()
             # identify who post this
             identity_checker = False
             visitorName = toolBox.find_userName(res_dict)
-            print("target_user :", visitorName)
             sys.stdout.flush()
             head_image = b''
             if visitorName is not None:
                 identity_checker = True
-                # print(list(user_list.find({})))
                 sys.stdout.flush()
                 user_info = user_list.find_one({'UserName': visitorName.encode()})
-                # print('user_info:', user_info)
                 # sys.stdout.flush()
                 head_image = user_info['head_image']
-                # print('image :', head_image)
                 # sys.stdout.flush()
 
-            print('id_checker :', identity_checker)
             sys.stdout.flush()
             if identity_checker:
                 ContentOfBoundary = res_dict['Content-Type'].replace('multipart/form-data; boundary=', '')
@@ -587,7 +546,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 # delete header here
                 b_requestLst.pop(0)
 
-                # print('content here :', b_requestLst)
                 sys.stdout.flush()
 
                 content_dict = {'username': visitorName, 'head_image': head_image}
@@ -613,7 +571,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
                     content_dict[subHeaders] = subBody
                     # content_dict['username'] = visitorName
-                # print('moment_info :', content_dict)
                 sys.stdout.flush()
                 # moment_info.insert_one(content_dict)
                 # set identity for images
@@ -628,7 +585,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     new_value = id_value + 1
                     imageID_info.update_one({'apple': 8}, {'$set': {'id': new_value}})
 
-                    # print("result:", 'image/upload_image' + str(new_value) + '.jpg')
                 sys.stdout.flush()
                 with open('image/upload_image' + str(new_value) + '.jpg', 'wb') as f:
                     f.write(content_dict['upload'])
@@ -638,15 +594,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 content_dict['id'] = new_value
                 sys.stdout.flush()
                 moment_info.insert_one(content_dict)
-                # print('dict :', content_dict)
                 self.request.sendall(
                     "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
                     "nosniff\r\nLocation:http://localhost:8080/profile\r\n\r\n".encode())
         elif data_arr[1] == b'image':
-            print('preparing for images')
             sys.stdout.flush()
             if data_arr[0].find(b'..') > 0:
-                print('upload image failed here')
                 sys.stdout.flush()
                 self.request.sendall(
                     "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: "
@@ -654,7 +607,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             filename = data_arr[2].decode('UTF-8').replace(' HTTP', '')
             filename = 'image/' + filename
-            print('filename :', filename)
             sys.stdout.flush()
             with open(filename, 'rb') as f:
                 image = f.read()
@@ -662,10 +614,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(('HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: ' + str(
                     l_image) + '\r\nX-Content-Type-Options: nosniff' + "\r\n\r\n").encode() + image)
         elif data_arr[1] == b'user_image':
-            print('preparing for head images')
             sys.stdout.flush()
             if data_arr[0].find(b'..') > 0:
-                print('upload head image failed here')
                 sys.stdout.flush()
                 self.request.sendall(
                     "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: "
@@ -673,7 +623,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             filename = data_arr[2].decode('UTF-8').replace(' HTTP', '')
             filename = 'user_image/' + filename
-            print('filename :', filename)
             sys.stdout.flush()
             with open(filename, 'rb') as f:
                 image = f.read()

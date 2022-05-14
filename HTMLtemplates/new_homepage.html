@@ -29,7 +29,6 @@
 
         }
 
-
         body {font-family: Arial, Helvetica, sans-serif;}
 
 
@@ -220,9 +219,9 @@
                 <div class="modal-body">
                   <form action="/changeImage" method="post" enctype="multipart/form-data">
                     <label for="form-image">Image: </label>
-                    <input id="form-image" type="file" name="upload">
+                    <input id="form-image" type="file" name="upload" onclick="checkFileSize()">
                     <div class="modal-footer">
-                      <button type="submit" class="btn btn-success">Change My Image</button>
+                      <button type="submit" class="btn btn-success" >Change My Image</button>
                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                   </form>
@@ -256,7 +255,7 @@
                 <textarea id="image-form-comment" name="text_post" cols="40" rows="6"></textarea>
                 <br/>
                 <label for="form-file">Image: </label>
-                <input id="form-file" type="file" name="upload" style="color: #F1D5EF">
+                <input id="form-file" type="file" name="upload" style="color: #F1D5EF" onclick="checkMomentFileSize()">
                 <div class="modal-footer">
                   <button type="submit" class="btn btn-success" style="background-color: #F1D5EF">Post My Moment</button>
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -323,20 +322,6 @@
 <footer class="container-fluid text-center">
   <p>About Us</p >
 </footer>
-<script>
 
-</script>
-
-<p hidden>friend list js start loop</p>
-<script>
-function pass_friend1_name(){
-    document.getElementById("sendTo").value = document.getElementById("friend1").innerHTML;
-}
-function pass_friend2_name(){
-    document.getElementById("sendTo").value = document.getElementById("friend2").value;
-}
-
-</script>
-<p hidden>friend list js end loop</p>
 
 </html>
