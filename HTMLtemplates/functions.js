@@ -62,7 +62,6 @@ function displayChatHistory(all_chats) {
             console.log("not null")
             document.getElementById("chatBox_"+friendName).innerHTML = chat_temp;
         }
-
     }
 
 }
