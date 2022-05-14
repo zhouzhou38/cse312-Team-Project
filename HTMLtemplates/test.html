@@ -1,0 +1,42 @@
+<div class="col-sm-2">
+    <br>
+    <p id="sendTo" hidden="">firefox</p>
+
+    <p hidden="">friend list class start loop</p>
+    <div class="my_friend_list" id="id_chrome">
+
+        <button id="friend_firefox" onclick="document.getElementById('sendTo').innerHTML='firefox';document.getElementById('chat_firefox').style.display='block';cleanBadge();
+                    " style="width: max-content;" class="button" value="firefox">firefox<span id="badge_firefox" class="badge"></span></button><br></div>
+    <p hidden="">friend list class end loop</p>
+
+    <div class="my_box_list">
+
+        <div id="chat_firefox" class="modal" style="overflow: scroll; display: block;"><div class="imgcontainer" style="background:#F1D5EF">
+            firefox
+        </div>
+            <div class="container">
+                <div id="chatBox_firefox" class="chatBox">
+                </div>
+
+                <div style="display: block;width: 100%;padding: 10px 100px;text-align: center;">
+<textarea id="textarea_firefox" name="message" required="" style="position: relative;margin-left: 0;display: inline-block;">Sending text...
+</textarea>
+                    <button onclick="sendMessage()">Send msg</button></div>
+                <br>
+                <button type="button" onclick="document.getElementById('chat_firefox').style.display='none'" class="cancelbtn">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    var uploadField = document.getElementById("file");
+    uploadField.onchange = function() {
+        if(this.files[0].size > 2097152){
+            alert("File is too big!");
+            this.value = "";
+        };
+    };
+</script>
