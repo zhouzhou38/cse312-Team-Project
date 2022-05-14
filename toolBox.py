@@ -140,6 +140,6 @@ def find_userName(res_dict):
                 visitorName = visitorName.replace('>', '&gt')
                 visitorName = visitorName.replace('\r\n', '<br>')
                 return visitorName
-        else:
-            return None
+
+    return None
 
