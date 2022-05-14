@@ -74,7 +74,8 @@ function get_chat_history() {
         if (this.readyState === 4 && this.status === 200) {
             console.log("recv from server!")
             const messages = JSON.parse(this.response);
-            displayChatHistory(messages)
+            setTimeout(() => {displayChatHistory(messages)}, 3000);
+
         }
     };
 
@@ -257,8 +258,8 @@ function connectWebRTC() {
 
 function welcome() {
 
+    get_chat_history();
 
-    get_chat_history()
 
     // use this line to start your video without having to click a button. Helpful for debugging
     // startVideo();
