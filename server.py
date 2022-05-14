@@ -112,6 +112,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
             sys.stdout.flush()
             # headerLst = data.split(b"\r\n")
+
             header_dict = toolBox.parse_to_dict(data)
             # print("header_dict :", header_dict)
             # sys.stdout.flush()
@@ -148,7 +149,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             friend_list_js_temp += 'document.getElementById("sendTo").value = document.getElementById("friend_'+friend_name+'").value;\n'
                             friend_list_js_temp += '}\n'
 
-                            chat_box_temp += '<div id="chat_'+friend_name+'" class="modal" style="overflow:scroll" >\n'
+                            chat_box_temp += '<div id="chat_'+friend_name+'" class="modal" >\n'
                             chat_box_temp += '<div class="imgcontainer" style="background:#F1D5EF" >\n'
                             chat_box_temp += friend_name+'\n'
                             chat_box_temp += '</div>\n'
@@ -160,11 +161,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                             chat_box_temp += 'Sending text...\n'
                             chat_box_temp += '</textarea>\n'
                             chat_box_temp += '<button style="background-color:#F1D5EF" onclick="sendMessage()">Send msg</button>\n'
-                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="startVideo()">start video</button>\n'
-                            chat_box_temp += '<button style="background-color:#F1D5EF" onclick="connectWebRTC();">video chat</button>\n'
-                            chat_box_temp += '<video id="myVideo" autoplay muted></video>\n'
-                            chat_box_temp += '<br>\n'
-                            chat_box_temp += '<video id="otherVideo" autoplay></video>\n'
                             chat_box_temp += '</div>\n'
                             chat_box_temp += '<br>\n'
                             chat_box_temp += '<button type="button" onclick="document.getElementById(\'chat_'+friend_name+'\').style.display=\'none\'" class="cancelbtn">Cancel</button>\n'
@@ -476,6 +472,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                     v.request.sendall(bytesToSend)
                         else:
                             print("less than 126")
+
                             lengthToSend = '{0:08b}'.format(actual_len)
                             frameToSend = "10000001" + lengthToSend + payload_bin
                             bytesToSend = int(frameToSend, 2).to_bytes((len(frameToSend) + 7) // 8, byteorder='big')

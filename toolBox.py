@@ -116,6 +116,7 @@ def parse_to_dict(header_bytes):
 def find_userName(res_dict):
     cookieDic = {}
     visitorName = ''
+
     print("res: ",res_dict)
     CookieLst = (res_dict['Cookie']).split(';')
     for i in CookieLst:
