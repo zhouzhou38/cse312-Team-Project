@@ -1,0 +1,79 @@
+/* Remove the navbar's default margin-bottom and rounded borders */
+.navbar {
+    margin-bottom: 1px;
+    border-radius: 1px;
+    color: #050505;
+}
+
+
+/* Set black background color, white text and some padding */
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #321E0F;
+    color: white;
+    text-align: center;
+}
+
+/* On small screens, set height to 'auto' for sidenav and grid */
+@media screen and (max-width: 767px) {
+    .sidenav {
+        height: auto;
+        padding: 15px;
+    }
+    .row.content {height:auto;}
+}
+body{
+    background-color: #F1D5EF;
+
+}
+#logo {
+    text-align:center;
+    color: #FEFAD7;
+}
+#sign_in {
+
+    text-align:center;
+    color: #FEFAD7;
+}
+
+.text-center{
+    color:  #FEFAD7;
+}
+.container-fluid{
+    background-color: #F1D5EF;
+    color: #050505;
+}
+a {
+    color: #333;
+    text-decoration: none;
+}
+.header_image{
+    width: 100px;
+    height: 100px;
+    border: 7px solid #F1D5EF;
+
+}
+.moment_image {
+    width: 60px;
+    height : 60px;
+    border: 5px solid #F1D5EF;
+}
+.my_image{
+    width: 120px;
+    height: 120px;
+
+}
+
+
+#col-sm-4{
+    border: 5px solid #F1D5EF;
+}
+.container{
+    border: 7px solid #f2dede;
+    background-color: #FEFAD7;
+    width: auto;
+
+}
