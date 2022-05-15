@@ -189,7 +189,7 @@ socket.onmessage = function (ws_message) {
                     let temp =  `<button id="${"friend_"+friendname}" onclick="document.getElementById('sendTo').innerHTML='${friendname}';document.getElementById('${"chat_"+friendname}').style.display='block';cleanBadge();
                     " style='width: max-content;' class='button' value='${friendname}'>${friendname}`
 
-                    let temp1 = `<span id='${"badge_"+friendname}' class="badge"></span></button><br>`
+                    let temp1 = `<span id='${"badge_"+friendname}' class="badge"></span></button>`
 
                     let final = temp + temp1
                     document.getElementById("id_"+me).innerHTML += final
