@@ -9,7 +9,7 @@ import json
 import hashlib
 import base64
 
-mongo_client = MongoClient()
+mongo_client = MongoClient("mongo")
 mydb = mongo_client["CSE312db"]
 
 user_list = mydb["user"]
@@ -19,6 +19,8 @@ imageID_info = mydb['imageID']
 chat_history = mydb['chat_history']
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
+    # url = "localhost:8080"
+    url = "zhouchating.com:8080"
 
     ws_users = {}
 
@@ -29,7 +31,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         sys.stdout.flush()
         if data_arr[0] == b"":
             pass
-
         elif data_arr[0] == b'GET ' and (b' HTTP' == data_arr[1] or b'?error=username HTTP' == data_arr[1] or b'?error=password HTTP' == data_arr[1]):
             f = open("HTMLtemplates/SignIn.html",'rb')
             content = f.read()
@@ -75,10 +76,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 toolBox.inserUsertoDB(userName, password)
                 user_list.update_one({'UserName': userName}, {'$set': {'head_image': content}})
 
-                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/\r\n\r\n"
+                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://"+self.url.encode()+b"/\r\n\r\n"
                 self.request.sendall(header)
             else:
-                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/Signup/?error=username\r\n\r\n"
+                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://"+self.url.encode()+b"/Signup/?error=username\r\n\r\n"
                 self.request.sendall(header)
         elif data_arr[0] == b'POST ' and data_arr[1] == b'profile HTTP':
             boundary = toolBox.findBoundary(data)
@@ -93,17 +94,17 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             if information is not None:
                 pwd = information['Password']
                 if bcrypt.checkpw(password, pwd):
-                    # localhost:5454/?name=username
+
                     mytoken = secrets.token_hex(16).encode()
                     tokenhashed = bcrypt.hashpw(mytoken, bcrypt.gensalt())
                     user_list.update_one({"UserName": userName}, {'$set': {'cookie': tokenhashed}})
-                    header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nLocation: http://localhost:8080/profile'
+                    header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nSet-Cookie: token=" + mytoken + b'; Max-Age=4000; HttpOnly\r\nLocation: http://'+self.url.encode()+b'/profile'
                     self.request.sendall(header)
                 else:
-                    header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/?error=password\r\n\r\n"
+                    header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://"+self.url.encode()+b"/?error=password\r\n\r\n"
                     self.request.sendall(header)
             else:
-                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://localhost:8080/?error=username\r\n\r\n"
+                header = b"HTTP/1.1 301 Permanent Redirect\r\nContent-Length:0\r\nLocation:http://"+self.url.encode()+b"/?error=username\r\n\r\n"
                 self.request.sendall(header)
         elif data_arr[0] == b'GET ' and b'profile' in data_arr[1]:
 
@@ -115,8 +116,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             # sys.stdout.flush()
             if userName is None:
                 self.request.sendall(
-                    "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
-                    "nosniff\r\nLocation:HTTP://localhost:8080/\r\n\r\n".encode())
+                    ("HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
+                    "nosniff\r\nLocation:HTTP://"+self.url+"/\r\n\r\n").encode())
             else:
                 with open('HTMLtemplates/new_homepage.html', 'r') as f:
                     text = f.read()
@@ -128,6 +129,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     temp = b'<div class="my_friend_list" id="id_'+userName.encode()+b'">\n'
                     content = content.replace(b'<div class="my_friend_list" id="id_myname">',temp)
                     content = content.replace(b'<input type="text" id="me" value="',b'<input type="text" id="me" value="'+userName.encode())
+
 
                     text = content.decode('utf-8')
                     text = text.replace('{{username}}',userName)
@@ -239,7 +241,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             userName = toolBox.find_userName(header_dict)
             if userName is None:
                 self.request.sendall(
-                    "HTTP/1.1 301 Moved Permanently\r\nContent-Length: 0\r\nLocation:http://localhost:8080/\r\n\r\n".encode())
+                    ("HTTP/1.1 301 Moved Permanently\r\nContent-Length: 0\r\nLocation:http://"+self.url+"/\r\n\r\n").encode())
             else:
                 filename = 'headImage/image' + userName + ".jpg"
                 try:
@@ -259,7 +261,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             userName = toolBox.find_userName(header_dict)
             if userName is None:
                 self.request.sendall(
-                    "HTTP/1.1 301 Moved Permanently\r\nContent-Length: 0\r\nLocation:http://localhost:8080/\r\n\r\n".encode())
+                    ("HTTP/1.1 301 Moved Permanently\r\nContent-Length: 0\r\nLocation:http://"+self.url+"/\r\n\r\n").encode())
             else:
                 boundary = toolBox.findBoundary(data)
                 finalBoundary = boundary + b'--'
@@ -272,7 +274,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 myimage = open(filename,'wb')
                 myimage.write(imagedata)
                 user_list.update_one({"UserName":userName.encode()},{'$set': {'head_image': imagedata}})
-                header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nX-Content-Type-Options: nosniff\r\nLocation: http://localhost:8080/profile\r\n\r\n"
+                header = b"HTTP/1.1 301 Moved Permanently\r\nContent-length: 0\r\nX-Content-Type-Options: nosniff\r\nLocation: http://"+self.url.encode()+b"/profile\r\n\r\n"
                 self.request.sendall(header)
         elif data_arr[0] == b'GET ' and b'wallpaper.jpg HTTP' in data_arr[1]:
             self.request.sendall(toolBox.image_sender('wallpaper.jpg'))
@@ -595,8 +597,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 sys.stdout.flush()
                 moment_info.insert_one(content_dict)
                 self.request.sendall(
-                    "HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
-                    "nosniff\r\nLocation:http://localhost:8080/profile\r\n\r\n".encode())
+                    ("HTTP/1.1 301 Moved Permanently\r\neContent-Length: 0\r\nX-Content-Type-Options: "
+                    "nosniff\r\nLocation:http://"+self.url+"/profile\r\n\r\n").encode())
         elif data_arr[1] == b'image':
             sys.stdout.flush()
             if data_arr[0].find(b'..') > 0:

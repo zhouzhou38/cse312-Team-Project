@@ -100,7 +100,7 @@ function displayChatHistory(all_chats) {
             chat_box_temp += `<button onclick="sendMessage()">Send msg</button>`
             chat_box_temp += `</div>\n`
             chat_box_temp += `<br>\n`
-            chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'" class="cancelbtn" onclick="cleanBadge()">Cancel</button>\n`
+            chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'; cleanBadge()" class="cancelbtn" >Cancel</button>\n`
             chat_box_temp += `</div>\n`
             chat_box_temp += `</div>\n\n`
 
@@ -219,7 +219,7 @@ socket.onmessage = function (ws_message) {
                     chat_box_temp += `<button onclick="sendMessage()">Send msg</button>`
                     chat_box_temp += `</div>\n`
                     chat_box_temp += `<br>\n`
-                    chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'" class="cancelbtn" onclick="cleanBadge()">Cancel</button>\n`
+                    chat_box_temp += `<button type="button" onclick="document.getElementById('${'chat_'+friendname}').style.display=\'none\'; cleanBadge()" class="cancelbtn" >Cancel</button>\n`
                     chat_box_temp += `</div>\n`
                     chat_box_temp += `</div>\n\n`
 
@@ -234,6 +234,7 @@ socket.onmessage = function (ws_message) {
             const disconnecting_user = message.user
             console.log(disconnecting_user, "is removing")
             document.getElementById("friend_"+disconnecting_user).remove()
+            document.getElementById("chat_"+disconnecting_user).style.display="none"
             break;
 
         case 'webRTC-offer':

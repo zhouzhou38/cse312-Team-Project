@@ -3,10 +3,9 @@ from pymongo import MongoClient
 import os
 import sys
 
-mongo_client = MongoClient()
+mongo_client = MongoClient("mongo")
 mydb = mongo_client["CSE312db"]
 user_list = mydb["user"]
-
 
 def findImage(receivedStr, boundary,finalBoundary):
     boundaryIn = receivedStr.find(boundary)
